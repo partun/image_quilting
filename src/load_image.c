@@ -3,6 +3,11 @@
 #include <jpeglib.h>
 #include "load_image.h"
 
+void free_image(Image *img) {
+    free(img->data);
+    free(img);
+}
+
 Image *read_image(char *image_path) {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -21,7 +26,7 @@ Image *read_image(char *image_path) {
     int width = cinfo.output_width;
     int height = cinfo.output_height;
 
-    printf("width: %d hight: %d\n", width, height);
+    printf("width: %d height: %d\n", width, height);
 
     RGB *image_data = malloc(width * height * sizeof(RGB));
     if (!image_data) {
@@ -62,8 +67,41 @@ Image *read_image(char *image_path) {
 }
 
 void store_image(Image *img, char *image_path) {
-    // todo: write store image function
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_compress(&cinfo);
+    cinfo.image_width = img->width;
+    cinfo.image_height = img->height;
+    cinfo.input_components = 3;
+    cinfo.in_color_space = JCS_RGB;
+    jpeg_set_defaults(&cinfo);
+    jpeg_set_quality(&cinfo, 100, TRUE);
+
+    // open output file
+    FILE *outfile;
+    if ((outfile = fopen(image_path, "wb")) == NULL) {
+        fprintf(stderr, "Failed to open output file\n");
+        exit(1);
+    }
+    jpeg_stdio_dest(&cinfo, outfile);
+
+    jpeg_start_compress(&cinfo, TRUE);
+    // Write image data to JPEG compressor in scanline format
+    JSAMPROW row_pointer[1];
+    unsigned char *image_buffer = (unsigned char *) img->data;
+    int row_stride = img->width * 3;
+    while (cinfo.next_scanline < cinfo.image_height) {
+        row_pointer[0] = &image_buffer[cinfo.next_scanline * row_stride];
+        jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+
+    // free all resources
+    jpeg_finish_compress(&cinfo);
+    fclose(outfile);
+    free_image(img);
 }
+
 
 void print_image_matrix(Image *img, Color color) {
     int width = img->width;
