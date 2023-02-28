@@ -1,0 +1,7 @@
+.idea
+cmake-build-debug
+cMakeFiles
+cmake_install.cmake
+CMakeCache.txt
+Makefile
+/team08
