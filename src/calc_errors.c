@@ -47,8 +47,8 @@ double* calc_errors(Image *image, Image* out_slice, int block_size, int overlap_
             Image block = {block_size, block_size, block_data};
 
             double error = 0.0;
-            for (int yy = 0; yy < block_size; yy++) {
-                for (int xx = 0; xx < block_size; xx++) {
+            for (int yy = 0; yy < y_end - y_start; yy++) {
+                for (int xx = 0; xx < x_end - x_start; xx++) {
                     int idx = yy * block_size + xx;
                     RGB pixel_diff = {block_data[idx].r - out_slice->data[idx].r,
                                       block_data[idx].g - out_slice->data[idx].g,

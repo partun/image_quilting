@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "load_image.h"
+#include "quilting.h"
 
 
 void invert_image(Image *img) {
@@ -26,11 +27,18 @@ int main(int argc, char *argv[]) {
     char *image_path = argv[1];
     Image *img = read_image(image_path);
 
-    // print_image_matrix(img, GREEN);
-    // print_image_matrix(img, BLUE);
-    // print_image_matrix(img, RED);
+    //print_image_matrix(img, GREEN);
+    //print_image_matrix(img, BLUE);
+    //print_image_matrix(img, RED);
 
-    invert_image(img);
-
+/*    invert_image(img);
     store_image(img, "output/test.jpeg");
+*/
+    Image *quilt = quilting(img, 14, 4, 4);
+    store_image(quilt, "output/quilt.jpeg");
+    
+//    print_image_matrix(quilt, GREEN);
+//    print_image_matrix(quilt, BLUE);
+//    print_image_matrix(quilt, RED);
+
 }
