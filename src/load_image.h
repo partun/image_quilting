@@ -1,32 +1,38 @@
-//
-// Created by Dominic Steiner on 28.02.23.
-//
-
 #ifndef TEAM08_LOAD_IMAGE_H
 #define TEAM08_LOAD_IMAGE_H
 
-typedef enum {
+typedef enum Color {
     RED,
     GREEN,
     BLUE,
 } Color;
 
-typedef struct {
+typedef struct RGB {
     unsigned char r;
     unsigned char g;
     unsigned char b;
 } RGB;
 
-typedef struct {
-    int width;
-    int height;
+typedef struct Image {
+    unsigned int width;
+    unsigned int height;
     RGB *data;
 } Image;
+
+void free_image(Image *img);
 
 Image *read_image(char *image_path);
 
 void store_image(Image *img, char *image_path);
 
 void print_image_matrix(Image *img, Color color);
+
+int rgb_sq_error(RGB *a, RGB *b);
+
+int rgb_equal(RGB *a, RGB *b);
+
+int image_equal(Image *a, Image *b);
+
+Image *make_solid_image(unsigned int width, unsigned int height, RGB color);
 
 #endif //TEAM08_LOAD_IMAGE_H

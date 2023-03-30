@@ -2,12 +2,27 @@
 // Created by Oleh Kuzyk on 10.03.23.
 //
 #include "load_image.h"
-
+#include "calc_errors.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-double* calc_errors(Image *image, Image* out_slice, int block_size, int overlap_size, char* direction) {
+
+//double *calc_errors2(Image *source_image, Image *output_image, int block_size, int overlap, Direction direction) {
+//    int source_image_height = image->height;
+//    int source_image_width = image->width;
+//
+//    int possible_blocks = (source_image_height - block_size) * (source_image_width - block_size);
+//    double *block_errors = (double *) malloc(possible_blocks * sizeof(double));
+//
+//    for (int y = 0; y < source_image_height; ++y) {
+//
+//    }
+//
+//
+//}
+
+double *calc_errors(Image *image, Image *out_slice, int block_size, int overlap_size, char *direction) {
     int image_height = image->height;
     int image_width = image->width;
 
@@ -15,7 +30,7 @@ double* calc_errors(Image *image, Image* out_slice, int block_size, int overlap_
     int num_blocks_w = image_width - block_size;
 
     int errors_size = num_blocks_h * num_blocks_w;
-    double* errors = malloc(errors_size * sizeof(double));
+    double *errors = malloc(errors_size * sizeof(double));
 
     for (int y = 0; y < num_blocks_h; y++) {
         for (int x = 0; x < num_blocks_w; x++) {
@@ -37,7 +52,7 @@ double* calc_errors(Image *image, Image* out_slice, int block_size, int overlap_
             }
 
             // Extract block from image
-            RGB* block_data = (RGB*) malloc(block_size * block_size * sizeof(RGB));
+            RGB *block_data = (RGB *) malloc(block_size * block_size * sizeof(RGB));
             for (int by = y_start; by <= y_end; by++) {
                 for (int bx = x_start; bx <= x_end; bx++) {
                     int idx = (by - y_start) * block_size + (bx - x_start);

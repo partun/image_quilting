@@ -32,13 +32,14 @@ int main(int argc, char *argv[]) {
     //print_image_matrix(img, RED);
 
 /*    invert_image(img);
-    store_image(img, "output/test.jpeg");
+    store_image(img, "output/tests.jpeg");
 */
-    Image *quilt = quilting(img, 14, 4, 4);
+    Image *quilt = quilting(img, 32, 4, 8);
     store_image(quilt, "output/quilt.jpeg");
-    
+
 //    print_image_matrix(quilt, GREEN);
 //    print_image_matrix(quilt, BLUE);
 //    print_image_matrix(quilt, RED);
 
+    printf("completed quilting\n");
 }
