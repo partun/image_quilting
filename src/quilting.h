@@ -12,9 +12,11 @@ typedef struct ImageCoordinates {
 
 Image *quilting(Image *image, int block_size, int num_blocks, int overlap_size);
 
+Matrix *transpose(Matrix *a);
+
 Matrix *calc_overlap_error(Image *source_image, Image *output_image, ImageCoordinates block_coords,
                            ImageCoordinates output_coords,
-                           int block_size, int overlap, Direction direction);
+                           int overlap_width, int overlap_height);
 
 Matrix *min_cut(
         Image *source_image, Image *output_image, ImageCoordinates block_coords, ImageCoordinates output_coords,

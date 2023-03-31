@@ -73,16 +73,16 @@ copy_section(Image *source_image, Image *output_image, ImageCoordinates source_c
  */
 Matrix *calc_overlap_error(Image *source_image, Image *output_image, ImageCoordinates block_coords,
                            ImageCoordinates output_coords,
-                           int block_size, int overlap, Direction direction) {
+                           int overlap_width, int overlap_height) {
 
-    int *overlap_error = (int *) malloc(block_size * overlap * sizeof(int));
+    int *overlap_error = (int *) malloc(overlap_width * overlap_height * sizeof(int));
 
     int source_idx;
     int output_idx;
     int error_idx;
-    for (int y = 0; y < block_size; y++) {
-        for (int x = 0; x < overlap; x++) {
-            error_idx = y * overlap + x;
+    for (int y = 0; y < overlap_height; y++) {
+        for (int x = 0; x < overlap_width; x++) {
+            error_idx = y * overlap_width + x;
             source_idx = (block_coords.y + y) * source_image->width + (block_coords.x + x);
             output_idx = (output_coords.y + y) * output_image->width + (output_coords.x + x);
 
@@ -94,11 +94,31 @@ Matrix *calc_overlap_error(Image *source_image, Image *output_image, ImageCoordi
 
     Matrix *errors = (Matrix *) malloc(sizeof(Matrix));
     errors->data = overlap_error;
-    errors->width = overlap;
-    errors->height = block_size;
+    errors->width = overlap_width;
+    errors->height = overlap_height;
 
     return errors;
 }
+
+
+Matrix *transpose(Matrix *a) {
+    Matrix *a_transposed = (Matrix *) malloc(sizeof(Matrix));
+    a_transposed->width = a->height;
+    a_transposed->height = a->width;
+    a_transposed->data = (int *) malloc(a->height * a->width * sizeof(int));
+
+    int transposed_idx = 0;
+    for (int j = 0; j < a->width; ++j) {
+        for (int i = 0; i < a->height; ++i) {
+            a_transposed->data[transposed_idx] = a->data[i * a->width + j];
+            transposed_idx++;
+        }
+    }
+
+    free_matrix(a);
+    return a_transposed;
+}
+
 
 /*
  * cut[cut_x_idx, 0:cut_y_idx] = -1;
@@ -129,15 +149,36 @@ Matrix *min_cut(
         return 0;
     }
 
+    int overlap_width;
+    int overlap_height;
+    Matrix *error_matrix;
+    if (direction == ABOVE) {
+        overlap_width = block_size;
+        overlap_height = overlap;
+        error_matrix = calc_overlap_error(source_image, output_image, block_coords, output_coords, overlap_width,
+                                          overlap_height);
 
-    Matrix *error_matrix = calc_overlap_error(source_image, output_image, block_coords, output_coords, block_size,
-                                              overlap, direction);
+        // transpose so that we can compute the ABOVE and the LEFT case the same way
+        error_matrix = transpose(error_matrix);
+        overlap_width = error_matrix->width;
+        overlap_height = error_matrix->height;
+
+    } else if (direction == LEFT) {
+        overlap_width = overlap;
+        overlap_height = block_size;
+        error_matrix = calc_overlap_error(source_image, output_image, block_coords, output_coords, overlap_width,
+                                          overlap_height);
+
+    } else {
+        // todo: implement corner overlap case
+        printf(stderr, "todo: implement corner overlap case");
+        exit(1);
+    }
+
 
     int *overlap_errors = error_matrix->data;
 
 
-    int overlap_width = overlap;
-    int overlap_height = block_size;
     Matrix *dp = malloc(sizeof(Matrix));
     dp->width = overlap_width;
     dp->height = overlap_height;
@@ -197,10 +238,8 @@ Matrix *min_cut(
     // initialize backtracking
     mark_cut_path(cut, cut_x_idx, overlap_height - 1);
 
-    // backtracking
+    // backtracking and mark cut path
     for (int i = overlap_height - 1; i >= 0; i--) {
-//        for (int j = 0; j < overlap_width; j++) {
-
         int new_cut_x_idx = cut_x_idx;
         int min_error = dp->data[i * overlap_width + cut_x_idx];
         if (cut_x_idx < overlap_width - 1) {
@@ -214,38 +253,20 @@ Matrix *min_cut(
         if (cut_x_idx > 0) {
             int err_top_left = dp->data[i * overlap_width + cut_x_idx - 1];
             if (err_top_left < min_error) {
-//                min_error = err_top_left;
                 new_cut_x_idx = cut_x_idx - 1;
             }
         }
 
         cut_x_idx = new_cut_x_idx;
         mark_cut_path(cut, cut_x_idx, i);
-//        }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // calc overlap error
-
     free_matrix(dp);
+
+    if (direction == ABOVE) {
+        // transpose the matrix back
+        cut = transpose(cut);
+    }
     return cut;
 }
 
