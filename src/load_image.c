@@ -8,6 +8,11 @@ void free_image(Image *img) {
     free(img);
 }
 
+void free_matrix(Matrix *m) {
+    free(m->data);
+    free(m);
+}
+
 Image *read_image(char *image_path) {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -139,6 +144,21 @@ void print_image_matrix(Image *img, Color color) {
     }
 }
 
+void print_matrix(Matrix *m) {
+    unsigned int width = m->width;
+    unsigned int height = m->height;
+
+
+    for (int i = 0; i < height; ++i) {
+        printf("%2d:", i);
+        for (int j = 0; j < width; ++j) {
+            int x = m->data[i * width + j];
+            printf(" %5d ", x);
+        }
+        printf("\n");
+    }
+}
+
 
 int rgb_equal(RGB *a, RGB *b) {
     return a->r == b->r && a->g == b->g && a->b == b->b;
@@ -166,6 +186,23 @@ int image_equal(Image *a, Image *b) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             if (!rgb_equal(a->data + (i * width + j), b->data + (i * width + j))) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+int matrix_equal(Matrix *a, Matrix *b) {
+    if (a->width != b->width || a->height != b->height) {
+        return 0;
+    }
+    int height = a->height;
+    int width = b->width;
+
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if (a->data[i * width + j] != b->data[i * width + j]) {
                 return 0;
             }
         }
