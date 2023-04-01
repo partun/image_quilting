@@ -46,24 +46,22 @@ double* calc_errors(Image *image, Image* out_slice, int block_size, int overlap_
             }
             Image block = {block_size, block_size, block_data};
 
-            double error = 0.0;
-            for (int yy = 0; yy < y_end - y_start; yy++) {
-                for (int xx = 0; xx < x_end - x_start; xx++) {
+            int error = 0;
+            for (int yy = 0; yy < y_end - y_start + 1; yy++) {
+                for (int xx = 0; xx < x_end - x_start + 1; xx++) {
                     int idx = yy * block_size + xx;
-                    RGB pixel_diff = {block_data[idx].r - out_slice->data[idx].r,
+                    int pixel_diff[3] = {block_data[idx].r - out_slice->data[idx].r,
                                       block_data[idx].g - out_slice->data[idx].g,
                                       block_data[idx].b - out_slice->data[idx].b};
-                    error += pixel_diff.r * pixel_diff.r +
-                             pixel_diff.g * pixel_diff.g +
-                             pixel_diff.b * pixel_diff.b;
+                    error += pixel_diff[0] * pixel_diff[0] +
+                             pixel_diff[1] * pixel_diff[1] +
+                             pixel_diff[2] * pixel_diff[2];
                 }
             }
-
             errors[y * num_blocks_w + x] = error;
 
             free(block_data);
         }
     }
-
     return errors;
 }
