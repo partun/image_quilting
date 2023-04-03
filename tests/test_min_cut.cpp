@@ -3,6 +3,9 @@
 extern "C" {
 #include "quilting.h"
 #include "load_image.h"
+#include "image.h"
+#include "matrix.h"
+#include "min_cut.h"
 }
 
 #define R {255, 0, 0}
@@ -102,7 +105,7 @@ TEST(min_cut, overlap_error) {
 }
 
 
-TEST(min_cut, left_min_cut) {
+TEST(min_cut, left) {
 
     Image *src_image = make_solid_image(8, 8, W);
 
@@ -152,7 +155,7 @@ TEST(min_cut, left_min_cut) {
 }
 
 
-TEST(min_cut, above_min_cut) {
+TEST(min_cut, above) {
 
     Image *src_image = make_solid_image(8, 8, W);
 
@@ -204,4 +207,137 @@ TEST(min_cut, above_min_cut) {
 
     free_matrix(cut);
     free_matrix(overlap_error);
+}
+
+TEST(min_cut, corner_0) {
+
+    Image *src_image = make_solid_image(8, 8, W);
+
+    RGB output_data[144] = {
+            R, R, R, R, R, R, R, R, R, R, R, R,
+            R, R, R, R, R, R, R, R, R, R, R, R,
+            R, R, R, R, R, R, R, R, R, R, R, R,
+            R, R, R, R, R, R, R, R, R, R, R, R,
+
+            R, R, R, R, R, W, R, R, R, R, R, R,
+            R, R, R, R, W, R, W, R, R, R, R, W,
+            R, R, R, R, W, R, R, W, R, R, W, R,
+            R, R, R, R, W, R, R, R, W, W, R, R,
+
+            R, R, R, R, R, W, R, R, R, R, R, R,
+            R, R, R, R, R, W, R, R, R, R, R, R,
+            R, R, R, R, R, R, W, R, R, R, R, R,
+            R, R, R, R, R, R, W, R, R, R, R, R,
+    };
+    Image output_image = {12, 12, output_data};
+
+
+    ImageCoordinates block_coords = {0, 0};
+    ImageCoordinates output_coords = {4, 4};
+
+
+    Matrix *overlap_error_above = calc_overlap_error(
+            src_image,
+            &output_image,
+            block_coords,
+            output_coords,
+            8,
+            4
+    );
+    print_matrix(overlap_error_above);
+    free_matrix(overlap_error_above);
+
+
+    Matrix *overlap_error_left = calc_overlap_error(
+            src_image,
+            &output_image,
+            block_coords,
+            output_coords,
+            4,
+            8
+    );
+    print_matrix(overlap_error_left);
+    free_matrix(overlap_error_left);
+
+
+    Matrix *cut = min_cut(
+            src_image,
+            &output_image,
+            block_coords,
+            output_coords,
+            8,
+            4,
+            CORNER
+    );
+
+    print_matrix(cut);
+
+    free_matrix(cut);
+}
+
+
+TEST(min_cut, corner_1) {
+
+    Image *src_image = make_solid_image(8, 8, W);
+
+    RGB output_data[144] = {
+            R, R, R, R, R, R, R, R, R, R, R, R,
+            R, R, R, R, R, R, R, R, R, R, R, R,
+            R, R, R, R, R, R, R, R, R, R, R, R,
+            R, R, R, R, R, R, R, R, R, R, R, R,
+
+            R, R, R, R, R, R, R, W, R, R, R, R,
+            R, R, R, R, R, R, R, W, R, R, R, W,
+            R, R, R, R, R, R, R, W, R, R, W, R,
+            R, R, R, R, W, W, W, W, W, W, R, R,
+
+            R, R, R, R, R, R, R, W, R, R, R, R,
+            R, R, R, R, R, R, R, W, R, R, R, R,
+            R, R, R, R, R, R, W, R, R, R, R, R,
+            R, R, R, R, R, W, R, R, R, R, R, R,
+    };
+    Image output_image = {12, 12, output_data};
+
+
+    ImageCoordinates block_coords = {0, 0};
+    ImageCoordinates output_coords = {4, 4};
+
+
+    Matrix *overlap_error_above = calc_overlap_error(
+            src_image,
+            &output_image,
+            block_coords,
+            output_coords,
+            8,
+            4
+    );
+    print_matrix(overlap_error_above);
+    free_matrix(overlap_error_above);
+
+
+    Matrix *overlap_error_left = calc_overlap_error(
+            src_image,
+            &output_image,
+            block_coords,
+            output_coords,
+            4,
+            8
+    );
+    print_matrix(overlap_error_left);
+    free_matrix(overlap_error_left);
+
+
+    Matrix *cut = min_cut(
+            src_image,
+            &output_image,
+            block_coords,
+            output_coords,
+            8,
+            4,
+            CORNER
+    );
+
+    print_matrix(cut);
+
+    free_matrix(cut);
 }

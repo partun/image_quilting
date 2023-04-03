@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "load_image.h"
+#include "image.h"
 }
 
 TEST(image, rgb_error) {
