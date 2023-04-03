@@ -48,7 +48,20 @@ TEST(min_cut, first) {
     ImageCoordinates block_coords = {0, 0};
     ImageCoordinates output_coords = {0, 0};
 
-    min_cut(
+    int expected[64] = {
+            1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1,
+
+            1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1,
+    };
+    Matrix expected_cut = {8, 8, expected};
+
+    Matrix *cut = min_cut(
             src_image,
             output_image,
             block_coords,
@@ -58,7 +71,10 @@ TEST(min_cut, first) {
             FIRST
     );
 
-    ASSERT_TRUE(image_equal(src_image, output_image));
+    print_matrix(cut);
+    ASSERT_TRUE(matrix_equal(cut, &expected_cut));
+
+    free_matrix(cut);
     free_image(src_image);
     free_image(output_image);
 }
