@@ -4,12 +4,12 @@
 
 
 void invert_image(Image *img) {
-    int width = img->width;
-    int height = img->height;
+    unsigned int width = img->width;
+    unsigned int height = img->height;
 
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
-            RGB *rgb = (int *) &img->data[i * width + j];
+            RGB *rgb = (RGB *) &img->data[i * width + j];
             rgb->r = rgb->r ^ 0xFF;
             rgb->g = rgb->g ^ 0xFF;
             rgb->b = rgb->b ^ 0xFF;
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 /*    invert_image(img);
     store_image(img, "output/tests.jpeg");
 */
-    Image *quilt = quilting(img, 32, 4, 8);
+    Image *quilt = quilting(img, 20, 14, 3);
     store_image(quilt, "output/quilt.jpeg");
 
 //    print_image_matrix(quilt, GREEN);

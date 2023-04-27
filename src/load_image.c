@@ -96,7 +96,7 @@ void store_image(Image *img, char *image_path) {
     // free all resources
     jpeg_finish_compress(&cinfo);
     fclose(outfile);
-    free_image(img);
+//    free_image(img);
 }
 
 
