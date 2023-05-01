@@ -65,10 +65,10 @@ void mark_cut_path(Matrix *cut, int cut_x_idx, int cut_y_idx) {
  * 0 and -1 -> -1
  */
 Matrix *merge_cut_matrix(Matrix *cut_0, Matrix *cut_1) {
-    print_matrix(cut_0);
-    printf("\n");
-    print_matrix(cut_1);
-    printf("\n");
+//    print_matrix(cut_0);
+//    printf("\n");
+//    print_matrix(cut_1);
+//    printf("\n");
 
     if (!matrix_equal_size(cut_0, cut_1)) {
         printf(stderr, "matrices are not equal size, can no merge cut matrices");
