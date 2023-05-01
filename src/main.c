@@ -17,37 +17,42 @@ void invert_image(Image *img) {
     }
 }
 
+/**
+ * @param argv[1] path to input image
+ * @param argv[2] (optional) path to output text file for measurement
+ */
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("provide a image path as argument.\n");
         return 1;
     } else if (argc < 3) {
-        printf("provide an output text file path as argument.\n");
-        return 1;
-    }
+        char *image_path = argv[1];
+        Image *img = read_image(image_path);
 
-    char *image_path = argv[1];
-    Image *img = read_image(image_path);
+        Image *quilt = quilting(img, 16, 14, 4);
+        store_image(quilt, "output/quilt.jpeg");
 
-    FILE *file = fopen(argv[2], "w");
-    if (file == NULL) {
-        printf("Error opening file %s\n", argv[2]);
-        return(1);
-    }
+        return (0);
+    } else {
 
-    //print_image_matrix(img, GREEN);
-    //print_image_matrix(img, BLUE);
-    //print_image_matrix(img, RED);
+        char *image_path = argv[1];
+        Image *img = read_image(image_path);
 
-//    invert_image(img);
-    store_image(img, "output/test2.jpeg");
+        FILE *file = fopen(argv[2], "w");
+        if (file == NULL) {
+            printf("Error opening file %s\n", argv[2]);
+            return (1);
+        }
+
+        store_image(img, "output/test2.jpeg");
 
 //    time_quilt((quilting), img, 10, 14, 3);
-    multi_time_quilt((quilting), file,  img, 8, 16, 20, 10, 16, 1, 1, 5, 1);
-//    print_image_matrix(quilt, GREEN);
-//    print_image_matrix(quilt, BLUE);
-//    print_image_matrix(quilt, RED);
+        multi_time_quilt((quilting), file, img, 8, 16, 20, 10, 16, 1, 1, 5, 1);
 
-    fclose(file);
+        fclose(file);
+
+    }
     printf("completed quilting\n");
 }
+
+
