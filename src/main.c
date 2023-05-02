@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
             return (1);
         }
 
-        store_image(img, "output/test2.jpeg");
+//        store_image(img, "output/test2.jpeg");
 
 //    time_quilt((quilting), img, 10, 14, 3);
         multi_time_quilt((quilting), file, img, 8, 16, 20, 10, 16, 1, 1, 5, 1);
