@@ -11,6 +11,7 @@
 
 #define RSEED 8
 
+double tolerance = 0.3;
 /**
  * Find a block with a suitable error
  * @param errors
@@ -28,15 +29,41 @@ void find_indexes(double *errors, int *inds,
     for (int y = 0; y < num_blocks_h; y++) {
         for (int x = 0; x < num_blocks_w; x++) {
             double err = errors[y * num_blocks_w + x];
-//                  printf("%.1f ", err);
             if (err < min_err) {
+//                printf("%.1f ", err);
                 min_err = err;
-                inds[0] = y;
-                inds[1] = x;
+//                inds[0] = y;
+//                inds[1] = x;
             }
         }
         //   printf("\n");
     }
+
+    int index_h = rand() % num_blocks_h;
+    int index_w = rand() % num_blocks_w;
+    double threshold = min_err * (1 + tolerance);
+    for (int y = 0; y < num_blocks_h; y++) {
+        for (int x = 0; x < num_blocks_w; x++) {
+            if (errors[((y+index_h) % num_blocks_h) * num_blocks_w + ((x + index_w) % num_blocks_w)] < threshold) {
+                inds[0] = (y + index_h) % num_blocks_h;
+                inds[1] = (x + index_w) % num_blocks_w;
+                return;
+            }
+        }
+        //   printf("\n");
+    }
+
+//    for (int y = index_h; y < 2 * num_blocks_h; y++) {
+//        for (int x = index_w; x < 2 * num_blocks_w; x++) {
+//            if (errors[(y % num_blocks_h) * num_blocks_w + (x % num_blocks_w)] < threshold) {
+//                inds[0] = y;
+//                inds[1] = x;
+//                return;
+//            }
+//        }
+//        //   printf("\n");
+//    }
+
     //printf("index - y:%d x:%d\n", inds[0], inds[1]);
     if (inds[0] < 0 || inds[1] < 0) {
         fprintf(stderr, "error: find index negative: x=%d y=%d", inds[1], inds[0]);
@@ -228,35 +255,35 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 out_slice->data = slice_data;
                 out_slice->width = block_size;
                 out_slice->height = block_size;
-                errors = calc_errors(image, out_slice, block_size, overlap_size, "above");
-                find_indexes(errors, inds, num_blocks_h, num_blocks_w);
+//                find_indexes(errors_above, inds, num_blocks_h, num_blocks_w);
 
                 ImageCoordinates block_coords = {inds[0], inds[1]};
                 ImageCoordinates out_coords = {i * (block_size - overlap_size), j * (block_size - overlap_size)};
-                mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, ABOVE);
-                inds[0] = rand() % num_blocks_h;
-                inds[1] = rand() % num_blocks_w;
-                copy_blocks_cut(image->data,
-                            out_data,
-                            im_width,
-                            inds[0] * (block_size - overlap_size) + overlap_size,
-                            inds[1] * (block_size - overlap_size) + overlap_size,
-                            out_size,
-                            (block_size - overlap_size) * i,
-                            (block_size - overlap_size) * j,
-                            block_size,mat);
+//                mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, ABOVE);
+//                inds[0] = rand() % num_blocks_h;
+//                inds[1] = rand() % num_blocks_w;
+//                copy_blocks_cut(image->data,
+//                            out_data,
+//                            im_width,
+//                            inds[0] * (block_size - overlap_size) + overlap_size,
+//                            inds[1] * (block_size - overlap_size) + overlap_size,
+//                            out_size,
+//                            (block_size - overlap_size) * i,
+//                            (block_size - overlap_size) * j,
+//                            block_size,mat);
 //                out_slice->data = slice_data;
 //                out_slice->width = block_size;
 //                out_slice->height = block_size;
+                double *errors_above = calc_errors(image, out_slice, block_size, overlap_size, "above");
                 double *errors_left = calc_errors(image, out_slice, block_size, overlap_size, "left");
                 double *errors_corner = calc_errors(image, out_slice, block_size, overlap_size, "corner");
                 for (int y = 0; y < num_blocks_h; y++) {
                     for (int x = 0; x < num_blocks_w; x++) {
                         int idx = y * num_blocks_w + x;
-                        errors[idx] += (errors_left[idx] - errors_corner[idx]);
+                        errors_above[idx] += (errors_left[idx] + errors_above[idx] - errors_corner[idx]);
                     }
                 }
-                find_indexes(errors, inds, num_blocks_h, num_blocks_w);
+                find_indexes(errors_above, inds, num_blocks_h, num_blocks_w);
 
                 block_coords = (ImageCoordinates) {inds[0], inds[1]};
                 out_coords = (ImageCoordinates) {i * (block_size - overlap_size), j * (block_size - overlap_size)};
@@ -268,7 +295,7 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                             inds[0] * (block_size - overlap_size) + overlap_size,
                             inds[1] * (block_size - overlap_size) + overlap_size,
                             out_size,
-                            0,
+                            i * (block_size - overlap_size),
                             j * (block_size - overlap_size),
                             block_size, mat);
 

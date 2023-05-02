@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
         char *image_path = argv[1];
         Image *img = read_image(image_path);
 
-        Image *quilt = quilting(img, 16, 14, 4);
+        Image *quilt = quilting(img, 32, 8, 8);
         store_image(quilt, "output/quilt.jpeg");
 
         return (0);
