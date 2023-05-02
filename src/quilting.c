@@ -12,6 +12,7 @@
 #define RSEED 8
 
 double tolerance = 0.3;
+
 /**
  * Find a block with a suitable error
  * @param errors
@@ -44,7 +45,7 @@ void find_indexes(double *errors, int *inds,
     double threshold = min_err * (1 + tolerance);
     for (int y = 0; y < num_blocks_h; y++) {
         for (int x = 0; x < num_blocks_w; x++) {
-            if (errors[((y+index_h) % num_blocks_h) * num_blocks_w + ((x + index_w) % num_blocks_w)] < threshold) {
+            if (errors[((y + index_h) % num_blocks_h) * num_blocks_w + ((x + index_w) % num_blocks_w)] < threshold) {
                 inds[0] = (y + index_h) % num_blocks_h;
                 inds[1] = (x + index_w) % num_blocks_w;
                 return;
@@ -94,16 +95,16 @@ void copy_blocks_cut(RGB *im_data, RGB *out_data,
         for (int j = 0; j < block_size; j++) {
             if (cut->data[i * block_size + j] == 1) {
                 out_data[(out_start_x + i) * out_width + out_start_y + j] =
-                    im_data[(im_start_x + i) * im_width + im_start_y + j];
+                        im_data[(im_start_x + i) * im_width + im_start_y + j];
             } else if (cut->data[i * block_size + j] == 0) {
                 out_data[(out_start_x + i) * out_width + out_start_y + j].b =
-                    out_data[(out_start_x + i) * out_width + out_start_y + j].b / 2
+                        out_data[(out_start_x + i) * out_width + out_start_y + j].b / 2
                         + im_data[(im_start_x + i) * im_width + im_start_y + j].b / 2;
                 out_data[(out_start_x + i) * out_width + out_start_y + j].g =
-                    out_data[(out_start_x + i) * out_width + out_start_y + j].g / 2
+                        out_data[(out_start_x + i) * out_width + out_start_y + j].g / 2
                         + im_data[(im_start_x + i) * im_width + im_start_y + j].g / 2;
                 out_data[(out_start_x + i) * out_width + out_start_y + j].r =
-                    out_data[(out_start_x + i) * out_width + out_start_y + j].r / 2
+                        out_data[(out_start_x + i) * out_width + out_start_y + j].r / 2
                         + im_data[(im_start_x + i) * im_width + im_start_y + j].r / 2;
             }
         }
@@ -132,7 +133,7 @@ void copy_blocks(RGB *im_data, RGB *out_data,
     for (int i = 0; i < pixels_to_copy_x; i++) {
         for (int j = 0; j < pixels_to_copy_y; j++) {
             out_data[(out_start_x + i) * out_width + out_start_y + j] =
-                im_data[(im_start_x + i) * im_width + im_start_y + j];
+                    im_data[(im_start_x + i) * im_width + im_start_y + j];
         }
     }
     return;
@@ -175,7 +176,7 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
     RGB *slice_data = (RGB *) malloc(block_size * block_size * sizeof(RGB));
     Image *out_slice = malloc(sizeof(Image));
 
-    Image *output_image = malloc(sizeof(Image));
+    Image *output_image = (Image *) malloc(sizeof(Image));
     output_image->data = out_data;
     output_image->width = out_size;
     output_image->height = out_size;
@@ -215,13 +216,13 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, ABOVE);
 //                print_matrix(mat);
 //                printf("in: %d:%d, out: %d:%d\n", image->height, image->width, block_size-overlap_size, block_size);
-                copy_blocks_cut(image->data,out_data,im_width,inds[0] * (block_size - overlap_size) + overlap_size,
+                copy_blocks_cut(image->data, out_data, im_width, inds[0] * (block_size - overlap_size) + overlap_size,
                                 inds[1] * (block_size - overlap_size) + overlap_size, out_size,
-                                (block_size - overlap_size) * i, 0, block_size,mat);
+                                (block_size - overlap_size) * i, 0, block_size, mat);
 //                store_image(output_image, "output/first.jpeg");
 //                exit(0);
+                free_matrix(mat);
                 free(errors);
-                free(mat);
             } else if (i == 0) {
                 copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
                             0, block_size, 0, 0,
@@ -239,11 +240,11 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, LEFT);
 
                 copy_blocks_cut(image->data, out_data,
-                            im_width,inds[0] * (block_size - overlap_size) + overlap_size,
-                            inds[1] * (block_size - overlap_size) + overlap_size,
-                            out_size,0,j * (block_size - overlap_size),block_size, mat);
+                                im_width, inds[0] * (block_size - overlap_size) + overlap_size,
+                                inds[1] * (block_size - overlap_size) + overlap_size,
+                                out_size, 0, j * (block_size - overlap_size), block_size, mat);
+                free_matrix(mat);
                 free(errors);
-                free(mat);
             } else {
 
                 copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
@@ -259,21 +260,7 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
 
                 ImageCoordinates block_coords = {inds[0], inds[1]};
                 ImageCoordinates out_coords = {i * (block_size - overlap_size), j * (block_size - overlap_size)};
-//                mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, ABOVE);
-//                inds[0] = rand() % num_blocks_h;
-//                inds[1] = rand() % num_blocks_w;
-//                copy_blocks_cut(image->data,
-//                            out_data,
-//                            im_width,
-//                            inds[0] * (block_size - overlap_size) + overlap_size,
-//                            inds[1] * (block_size - overlap_size) + overlap_size,
-//                            out_size,
-//                            (block_size - overlap_size) * i,
-//                            (block_size - overlap_size) * j,
-//                            block_size,mat);
-//                out_slice->data = slice_data;
-//                out_slice->width = block_size;
-//                out_slice->height = block_size;
+
                 double *errors_above = calc_errors(image, out_slice, block_size, overlap_size, "above");
                 double *errors_left = calc_errors(image, out_slice, block_size, overlap_size, "left");
                 double *errors_corner = calc_errors(image, out_slice, block_size, overlap_size, "corner");
@@ -290,21 +277,18 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, CORNER);
 
                 copy_blocks_cut(image->data,
-                            out_data,
-                            im_width,
-                            inds[0] * (block_size - overlap_size) + overlap_size,
-                            inds[1] * (block_size - overlap_size) + overlap_size,
-                            out_size,
-                            i * (block_size - overlap_size),
-                            j * (block_size - overlap_size),
-                            block_size, mat);
+                                out_data,
+                                im_width,
+                                inds[0] * (block_size - overlap_size) + overlap_size,
+                                inds[1] * (block_size - overlap_size) + overlap_size,
+                                out_size,
+                                i * (block_size - overlap_size),
+                                j * (block_size - overlap_size),
+                                block_size, mat);
 
+                free_matrix(mat);
                 free(errors_left);
                 free(errors_corner);
-//                free(errors);
-                free(mat);
-//                printf(" %d\n", i);
-//                store_image(output_image, "output/first.jpeg");
             }
         }
     }
