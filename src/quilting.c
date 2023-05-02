@@ -170,7 +170,7 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
     }
 
     double tolerance = 0.3;
-    int out_size = out_num_blocks * (block_size - overlap_size);
+    int out_size = out_num_blocks * (block_size - overlap_size) + overlap_size;
 
     RGB *out_data = (RGB *) malloc(out_size * out_size * sizeof(RGB));
     RGB *slice_data = (RGB *) malloc(block_size * block_size * sizeof(RGB));
@@ -209,7 +209,7 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 out_slice->data = slice_data;
                 out_slice->width = block_size;
                 out_slice->height = block_size;
-                errors = calc_errors(image, out_slice, block_size, overlap_size, "above");
+                errors = calc_errors(image, out_slice, block_size, overlap_size, ABOVE);
                 find_indexes(errors, inds, num_blocks_h, num_blocks_w);
                 ImageCoordinates block_coords = {inds[0], inds[1]};
                 ImageCoordinates out_coords = {i * (block_size - overlap_size), j * (block_size - overlap_size)};
@@ -224,13 +224,13 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 free_matrix(mat);
                 free(errors);
             } else if (i == 0) {
-                copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
+                copy_blocks(out_data, slice_data, out_size, (j) * (block_size - overlap_size),
                             0, block_size, 0, 0,
                             overlap_size, block_size);
                 out_slice->data = slice_data;
                 out_slice->width = block_size;
                 out_slice->height = block_size;
-                errors = calc_errors(image, out_slice, block_size, overlap_size, "left");
+                errors = calc_errors(image, out_slice, block_size, overlap_size, LEFT);
                 find_indexes(errors, inds, num_blocks_h, num_blocks_w);
 
 //                inds[0] = rand() % num_blocks_h;
@@ -247,10 +247,10 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 free(errors);
             } else {
 
-                copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
+                copy_blocks(out_data, slice_data, out_size, (j) * (block_size - overlap_size),
                             (i) * (block_size - overlap_size), block_size, 0, 0,
                             overlap_size, block_size);
-                copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
+                copy_blocks(out_data, slice_data, out_size, (j) * (block_size - overlap_size),
                             (i) * (block_size - overlap_size), block_size, overlap_size, 0,
                             block_size - overlap_size, overlap_size);
                 out_slice->data = slice_data;
@@ -261,9 +261,9 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 ImageCoordinates block_coords = {inds[0], inds[1]};
                 ImageCoordinates out_coords = {i * (block_size - overlap_size), j * (block_size - overlap_size)};
 
-                double *errors_above = calc_errors(image, out_slice, block_size, overlap_size, "above");
-                double *errors_left = calc_errors(image, out_slice, block_size, overlap_size, "left");
-                double *errors_corner = calc_errors(image, out_slice, block_size, overlap_size, "corner");
+                double *errors_above = calc_errors(image, out_slice, block_size, overlap_size, ABOVE);
+                double *errors_left = calc_errors(image, out_slice, block_size, overlap_size, LEFT);
+                double *errors_corner = calc_errors(image, out_slice, block_size, overlap_size, CORNER);
                 for (int y = 0; y < num_blocks_h; y++) {
                     for (int x = 0; x < num_blocks_w; x++) {
                         int idx = y * num_blocks_w + x;
@@ -275,6 +275,7 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 block_coords = (ImageCoordinates) {inds[0], inds[1]};
                 out_coords = (ImageCoordinates) {i * (block_size - overlap_size), j * (block_size - overlap_size)};
                 mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, CORNER);
+                mask_copy(image, output_image, mat, block_coords, out_coords, block_size);
 
                 copy_blocks_cut(image->data,
                                 out_data,

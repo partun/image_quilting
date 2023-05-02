@@ -14,6 +14,6 @@ typedef enum Direction {
     FIRST
 } Direction;
 
-double* calc_errors(Image *image, Image* out_slice, int block_size, int overlap_size, char* direction);
+double *calc_errors(Image *image, Image *out_slice, int block_size, int overlap_size, Direction direction);
 
 #endif //CALC_ERRORS_H
