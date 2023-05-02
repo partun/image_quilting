@@ -1,7 +1,13 @@
 .idea
+.DS_Store
 cmake-build-debug
 cMakeFiles
 cmake_install.cmake
 CMakeCache.txt
 Makefile
-/team08
+
+# Additions from Etienne
+team08
+CMakeFiles
+output/*
+tests/unittests

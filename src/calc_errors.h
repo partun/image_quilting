@@ -7,6 +7,13 @@
 
 #include "load_image.h"
 
-double* calc_errors(Image *image, Image* out_slice, int block_size, int overlap_size, char* direction);
+typedef enum Direction {
+    ABOVE,
+    LEFT,
+    CORNER,
+    FIRST
+} Direction;
+
+double *calc_errors(Image *image, Image *out_slice, int block_size, int overlap_size, char *direction);
 
 #endif //CALC_ERRORS_H

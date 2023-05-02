@@ -2,11 +2,8 @@
 #include <stdlib.h>
 #include <jpeglib.h>
 #include "load_image.h"
+#include "image.h"
 
-void free_image(Image *img) {
-    free(img->data);
-    free(img);
-}
 
 Image *read_image(char *image_path) {
     struct jpeg_decompress_struct cinfo;
@@ -99,42 +96,15 @@ void store_image(Image *img, char *image_path) {
     // free all resources
     jpeg_finish_compress(&cinfo);
     fclose(outfile);
-    free_image(img);
+//    free_image(img);
 }
 
 
-void print_image_matrix(Image *img, Color color) {
-    int width = img->width;
-    int height = img->height;
 
-    switch (color) {
-        case RED:
-            printf("RED:\n");
-            break;
-        case GREEN:
-            printf("GREEN:\n");
-            break;
-        case BLUE:
-            printf("BLUE:\n");
-            break;
-    }
 
-    for (int i = 0; i < height; ++i) {
-        printf("%2d:", i);
-        for (int j = 0; j < width; ++j) {
-            RGB rgb = img->data[i * width + j];
-            switch (color) {
-                case RED:
-                    printf(" %3d ", rgb.r);
-                    break;
-                case GREEN:
-                    printf(" %3d ", rgb.g);
-                    break;
-                case BLUE:
-                    printf(" %3d ", rgb.b);
-                    break;
-            }
-        }
-        printf("\n");
-    }
-}
+
+
+
+
+
+
