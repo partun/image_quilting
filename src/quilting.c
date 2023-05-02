@@ -70,14 +70,14 @@ void copy_blocks_cut(RGB *im_data, RGB *out_data,
                     im_data[(im_start_x + i) * im_width + im_start_y + j];
             } else if (cut->data[i * block_size + j] == 0) {
                 out_data[(out_start_x + i) * out_width + out_start_y + j].b =
-                    (out_data[(out_start_x + i) * out_width + out_start_y + j].b
-                        + im_data[(im_start_x + i) * im_width + im_start_y + j].b) / 2;
+                    out_data[(out_start_x + i) * out_width + out_start_y + j].b / 2
+                        + im_data[(im_start_x + i) * im_width + im_start_y + j].b / 2;
                 out_data[(out_start_x + i) * out_width + out_start_y + j].g =
-                    (out_data[(out_start_x + i) * out_width + out_start_y + j].g
-                        + im_data[(im_start_x + i) * im_width + im_start_y + j].g) / 2;
+                    out_data[(out_start_x + i) * out_width + out_start_y + j].g / 2
+                        + im_data[(im_start_x + i) * im_width + im_start_y + j].g / 2;
                 out_data[(out_start_x + i) * out_width + out_start_y + j].r =
-                    (out_data[(out_start_x + i) * out_width + out_start_y + j].r
-                        + im_data[(im_start_x + i) * im_width + im_start_y + j].r) / 2;
+                    out_data[(out_start_x + i) * out_width + out_start_y + j].r / 2
+                        + im_data[(im_start_x + i) * im_width + im_start_y + j].r / 2;
             }
         }
     }
@@ -101,7 +101,7 @@ void copy_blocks(RGB *im_data, RGB *out_data,
                  int im_width, int im_start_x, int im_start_y,
                  int out_width, int out_start_x, int out_start_y,
                  int pixels_to_copy_x, int pixels_to_copy_y) {
-    printf("Copy: %d:%d\n", pixels_to_copy_x, pixels_to_copy_y);
+//    printf("Copy: %d:%d\n", pixels_to_copy_x, pixels_to_copy_y);
     for (int i = 0; i < pixels_to_copy_x; i++) {
         for (int j = 0; j < pixels_to_copy_y; j++) {
             out_data[(out_start_x + i) * out_width + out_start_y + j] =
@@ -191,9 +191,10 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 copy_blocks_cut(image->data,out_data,im_width,inds[0] * (block_size - overlap_size) + overlap_size,
                                 inds[1] * (block_size - overlap_size) + overlap_size, out_size,
                                 (block_size - overlap_size) * i, 0, block_size,mat);
-                store_image(output_image, "output/first.jpeg");
+//                store_image(output_image, "output/first.jpeg");
 //                exit(0);
                 free(errors);
+                free(mat);
             } else if (i == 0) {
                 copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
                             0, block_size, 0, 0,
@@ -215,6 +216,7 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                             inds[1] * (block_size - overlap_size) + overlap_size,
                             out_size,0,j * (block_size - overlap_size),block_size, mat);
                 free(errors);
+                free(mat);
             } else {
 
                 copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
@@ -232,8 +234,8 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                 ImageCoordinates block_coords = {inds[0], inds[1]};
                 ImageCoordinates out_coords = {i * (block_size - overlap_size), j * (block_size - overlap_size)};
                 mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, ABOVE);
-//                inds[0] = rand() % num_blocks_h;
-//                inds[1] = rand() % num_blocks_w;
+                inds[0] = rand() % num_blocks_h;
+                inds[1] = rand() % num_blocks_w;
                 copy_blocks_cut(image->data,
                             out_data,
                             im_width,
@@ -243,9 +245,9 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
                             (block_size - overlap_size) * i,
                             (block_size - overlap_size) * j,
                             block_size,mat);
-                out_slice->data = slice_data;
-                out_slice->width = block_size;
-                out_slice->height = block_size;
+//                out_slice->data = slice_data;
+//                out_slice->width = block_size;
+//                out_slice->height = block_size;
                 double *errors_left = calc_errors(image, out_slice, block_size, overlap_size, "left");
                 double *errors_corner = calc_errors(image, out_slice, block_size, overlap_size, "corner");
                 for (int y = 0; y < num_blocks_h; y++) {
@@ -272,9 +274,10 @@ Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_si
 
                 free(errors_left);
                 free(errors_corner);
-                free(errors);
+//                free(errors);
+                free(mat);
 //                printf(" %d\n", i);
-                store_image(output_image, "output/first.jpeg");
+//                store_image(output_image, "output/first.jpeg");
             }
         }
     }

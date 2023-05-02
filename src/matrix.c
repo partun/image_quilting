@@ -11,7 +11,7 @@ void print_matrix(Matrix *m) {
     unsigned int width = m->width;
     unsigned int height = m->height;
 
-
+    printf("\n");
     for (int i = 0; i < height; ++i) {
         printf("%2d:", i);
         for (int j = 0; j < width; ++j) {
@@ -20,6 +20,7 @@ void print_matrix(Matrix *m) {
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 int matrix_equal_size(Matrix *a, Matrix *b) {

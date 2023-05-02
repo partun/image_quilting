@@ -7,22 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 
-
-//double *calc_errors2(Image *source_image, Image *output_image, int block_size, int overlap, Direction direction) {
-//    int source_image_height = image->height;
-//    int source_image_width = image->width;
-//
-//    int possible_blocks = (source_image_height - block_size) * (source_image_width - block_size);
-//    double *block_errors = (double *) malloc(possible_blocks * sizeof(double));
-//
-//    for (int y = 0; y < source_image_height; ++y) {
-//
-//    }
-//
-//
-//}
-
-double *calc_errors(Image *image, Image *out_slice, int block_size, int overlap_size, char *direction) {
+double* calc_errors(Image *image, Image* out_slice, int block_size, int overlap_size, char* direction) {
     int image_height = image->height;
     int image_width = image->width;
 
@@ -30,12 +15,10 @@ double *calc_errors(Image *image, Image *out_slice, int block_size, int overlap_
     int num_blocks_w = image_width - block_size;
 
     int errors_size = num_blocks_h * num_blocks_w;
-    double *errors = malloc(errors_size * sizeof(double));
+    double* errors = malloc(errors_size * sizeof(double));
 
-//    printf("calc: 1\n");
     for (int y = 0; y < num_blocks_h; y++) {
         for (int x = 0; x < num_blocks_w; x++) {
-//            printf("calc: 2, y=%d, x=%d\n", y, x);
             int y_start = y, x_start = x;
             int y_end, x_end;
             if (strcmp(direction, "above") == 0) {
@@ -52,22 +35,16 @@ double *calc_errors(Image *image, Image *out_slice, int block_size, int overlap_
                 free(errors);
                 return NULL;
             }
-//            printf("calc: 3, y=%d, x=%d\n", y, x);
 
             // Extract block from image
             RGB *block_data = (RGB *) malloc(block_size * block_size * sizeof(RGB));
-//            printf("calc: 4, y=%d, x=%d\n", y, x);
             for (int by = y_start; by <= y_end; by++) {
                 for (int bx = x_start; bx <= x_end; bx++) {
-//                    printf("calc: 4, by=%d, bx=%d\n", by, bx);
                     int idx = (by - y_start) * block_size + (bx - x_start);
-//                    printf("calc: 4, by=%d, bx=%d\n", by, bx);
                     block_data[idx] = image->data[by * image_width + bx];
-//                    printf("calc: 4, by=%d, bx=%d\n", by, bx);
                 }
             }
             Image block = {block_size, block_size, block_data};
-//            printf("calc: 5, y=%d, x=%d\n", y, x);
 
             double error = 0.0;
             for (int yy = 0; yy < y_end - y_start; yy++) {
@@ -81,7 +58,6 @@ double *calc_errors(Image *image, Image *out_slice, int block_size, int overlap_
                              pixel_diff.b * pixel_diff.b;
                 }
             }
-//            printf("calc: 6, y=%d, x=%d\n", y, x);
 
             errors[y * num_blocks_w + x] = error;
 
