@@ -3,19 +3,6 @@
 #include "quilting.h"
 #include "timing.h"
 
-void invert_image(Image *img) {
-    unsigned int width = img->width;
-    unsigned int height = img->height;
-
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            RGB *rgb = (RGB *) &img->data[i * width + j];
-            rgb->r = rgb->r ^ 0xFF;
-            rgb->g = rgb->g ^ 0xFF;
-            rgb->b = rgb->b ^ 0xFF;
-        }
-    }
-}
 
 /**
  * @param argv[1] path to input image
@@ -29,7 +16,7 @@ int main(int argc, char *argv[]) {
         char *image_path = argv[1];
         Image *img = read_image(image_path);
 
-        Image *quilt = quilting(img, 16, 14, 4);
+        Image *quilt = quilting(img, 8, 20, 3);
         store_image(quilt, "output/quilt.jpeg");
 
         return (0);
@@ -44,11 +31,12 @@ int main(int argc, char *argv[]) {
             return (1);
         }
 
-//        store_image(img, "output/test2.jpeg");
+//        time_quilt((quilting), img, 10, 14, 3);
+        multi_time_quilt((quilting), file, img,
+                         16, 17, 2, 10,
+                         11, 2, 4, 9, 2);
 
-//    time_quilt((quilting), img, 10, 14, 3);
-        multi_time_quilt((quilting), file, img, 8, 16, 20, 10, 16, 1, 1, 5, 1);
-
+        free_image(img);
         fclose(file);
 
     }

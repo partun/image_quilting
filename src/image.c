@@ -8,8 +8,8 @@ void free_image(Image *img) {
 }
 
 void print_image_matrix(Image *img, Color color) {
-    int width = img->width;
-    int height = img->height;
+    unsigned int width = img->width;
+    unsigned int height = img->height;
 
     switch (color) {
         case RED:

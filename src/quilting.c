@@ -1,288 +1,190 @@
-#include "load_image.h"
-#include "calc_errors.h"
 #include "quilting.h"
+#include "calc_errors.h"
+#include "load_image.h"
 #include "min_cut.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <float.h>
 #include <time.h>
 
 #define RSEED 8
 
-/**
- * Find a block with a suitable error
- * @param errors
- * @param inds index of the found block (not the pixel)
- * @param num_blocks_h
- * @param num_blocks_w
- */
-void find_indexes(double *errors, int *inds,
-                  int num_blocks_h, int num_blocks_w) {
+double tolerance = 1;
 
-    double min_err = DBL_MAX;
-    inds[0] = -1;
-    inds[1] = -1;
-    //printf("errors: %d, %d\n",num_blocks_h, num_blocks_w);
-    for (int y = 0; y < num_blocks_h; y++) {
-        for (int x = 0; x < num_blocks_w; x++) {
-            double err = errors[y * num_blocks_w + x];
-//                  printf("%.1f ", err);
-            if (err < min_err) {
-                min_err = err;
-                inds[0] = y;
-                inds[1] = x;
-            }
+/*
+ * copies block from source image to out image
+ */
+void copy_block(
+        Image *src, ImageCoordinates src_coord, Image *out,
+        ImageCoordinates out_coord, int block_size
+) {
+    unsigned int src_idx;
+    unsigned int out_idx;
+
+    for (int y = 0; y < block_size; ++y) {
+        for (int x = 0; x < block_size; ++x) {
+            src_idx = (y + src_coord.y) * src->width + x + src_coord.x;
+            out_idx = (y + out_coord.y) * out->width + x + out_coord.x;
+
+            out->data[out_idx] = src->data[src_idx];
         }
-        //   printf("\n");
     }
-    //printf("index - y:%d x:%d\n", inds[0], inds[1]);
-    if (inds[0] < 0 || inds[1] < 0) {
-        fprintf(stderr, "error: find index negative: x=%d y=%d", inds[1], inds[0]);
-        exit(1);
-    }
-    return;
 }
 
-/**
- * Copy a block to the output image
- * @param im_data image copied from
- * @param out_data image copied to
- * @param im_width width of the input image
- * @param im_start_x starting point of the block in the input image on the x axis
- * @param im_start_y starting point of the block in the input image on the y axis
- * @param out_width width of the output image
- * @param out_start_x starting point of the block in the output image on the x axis
- * @param out_start_y starting point of the block in the output image on the y axis
- * @param pixels_to_copy_x number of pixels to copy along the x axis
- * @param pixels_to_copy_y number of pixels to copy along the x axis
- */
-void copy_blocks_cut(RGB *im_data, RGB *out_data,
-                     int im_width, int im_start_x, int im_start_y,
-                     int out_width, int out_start_x, int out_start_y,
-                     int block_size, Matrix *cut) {
-//    printf("Copy: %d:%d\n", cut->width, cut->height);
-    for (int i = 0; i < block_size; i++) {
-        for (int j = 0; j < block_size; j++) {
-            if (cut->data[i * block_size + j] == 1) {
-                out_data[(out_start_x + i) * out_width + out_start_y + j] =
-                    im_data[(im_start_x + i) * im_width + im_start_y + j];
-            } else if (cut->data[i * block_size + j] == 0) {
-                out_data[(out_start_x + i) * out_width + out_start_y + j].b =
-                    (out_data[(out_start_x + i) * out_width + out_start_y + j].b
-                        + im_data[(im_start_x + i) * im_width + im_start_y + j].b) / 2;
-                out_data[(out_start_x + i) * out_width + out_start_y + j].g =
-                    (out_data[(out_start_x + i) * out_width + out_start_y + j].g
-                        + im_data[(im_start_x + i) * im_width + im_start_y + j].g) / 2;
-                out_data[(out_start_x + i) * out_width + out_start_y + j].r =
-                    (out_data[(out_start_x + i) * out_width + out_start_y + j].r
-                        + im_data[(im_start_x + i) * im_width + im_start_y + j].r) / 2;
+void mask_copy_block(
+        Image *source_image, Image *output_image, Matrix *mask,
+        ImageCoordinates block_coords,
+        ImageCoordinates output_coords, int block_size
+) {
+
+    unsigned int source_idx;
+    unsigned int output_idx;
+    unsigned int mask_idx;
+
+    for (int y = 0; y < block_size; y++) {
+        for (int x = 0; x < block_size; x++) {
+            mask_idx = y * mask->width + x;
+            source_idx =
+                    (block_coords.y + y) * source_image->width + (block_coords.x + x);
+            output_idx =
+                    (output_coords.y + y) * output_image->width + (output_coords.x + x);
+
+            if (mask->data[mask_idx] == 1) {
+                output_image->data[output_idx] = source_image->data[source_idx];
+            } else if (mask->data[mask_idx] == 0) {
+                output_image->data[output_idx].b =
+                        output_image->data[output_idx].b / 2 +
+                        source_image->data[source_idx].b / 2;
+                output_image->data[output_idx].g =
+                        output_image->data[output_idx].g / 2 +
+                        source_image->data[source_idx].g / 2;
+                output_image->data[output_idx].r =
+                        output_image->data[output_idx].r / 2 +
+                        source_image->data[source_idx].r / 2;
             }
         }
     }
-    return;
 }
 
-/**
- * Copy a block to the output image
- * @param im_data image copied from
- * @param out_data image copied to
- * @param im_width width of the input image
- * @param im_start_x starting point of the block in the input image on the x axis
- * @param im_start_y starting point of the block in the input image on the y axis
- * @param out_width width of the output image
- * @param out_start_x starting point of the block in the output image on the x axis
- * @param out_start_y starting point of the block in the output image on the y axis
- * @param pixels_to_copy_x number of pixels to copy along the x axis
- * @param pixels_to_copy_y number of pixels to copy along the x axis
- */
-void copy_blocks(RGB *im_data, RGB *out_data,
-                 int im_width, int im_start_x, int im_start_y,
-                 int out_width, int out_start_x, int out_start_y,
-                 int pixels_to_copy_x, int pixels_to_copy_y) {
-    printf("Copy: %d:%d\n", pixels_to_copy_x, pixels_to_copy_y);
-    for (int i = 0; i < pixels_to_copy_x; i++) {
-        for (int j = 0; j < pixels_to_copy_y; j++) {
-            out_data[(out_start_x + i) * out_width + out_start_y + j] =
-                im_data[(im_start_x + i) * im_width + im_start_y + j];
-        }
-    }
-    return;
-}
-
-/**
- * Compute the quilted image.
- * Note that both blocks and output image are square
- * @param image input image
- * @param block_size number of pixels for one block (blocks are square)
- * @param out_num_blocks number of blocks in the output image (defines the output's size)
- * @param overlap_size number of pixels overlapping between two blocks
- * @return the output image
- */
-Image *quilting(Image *image, int block_size, int out_num_blocks, int overlap_size) {
+Image *quilting(
+        Image *image, int block_size, int out_blocks,
+        int overlap_size
+) {
+    srand(time(NULL));
 
     if (block_size < overlap_size) {
-        fprintf(stderr, "error: quilting block size (%d) is smaller than the overlap size (%d)\n",
+        fprintf(stderr,
+                "error: quilting block size (%d) is smaller than the overlap size "
+                "(%d)\n",
                 block_size, overlap_size);
         exit(1);
     }
 
-    int im_height = image->height;
-    int im_width = image->width;
-
-    // number of blocks used from the input image (they do overlap)
-    int num_blocks_h = im_height / block_size;
-    int num_blocks_w = im_width / block_size;
-
-    if (num_blocks_h < 1 || num_blocks_w < 1) {
-        fprintf(stderr, "error: quilting block size (%dx%d) exceeds one of the image dimensions (%dx%d)\n",
-                block_size, block_size, im_height, im_width);
+    if (image->height < block_size || image->width < block_size) {
+        fprintf(stderr,
+                "error: quilting block size (%dx%d) exceeds one of the image "
+                "dimensions (%dx%d)\n",
+                block_size, block_size, image->height, image->width);
         exit(1);
     }
 
-    double tolerance = 0.3;
-    int out_size = out_num_blocks * (block_size - overlap_size);
+    int out_size = out_blocks * (block_size - overlap_size) + overlap_size;
+    Image *out_im = (Image *) malloc(sizeof(Image));
+    out_im->width = out_size;
+    out_im->height = out_size;
+    out_im->data = (RGB *) malloc(out_size * out_size * sizeof(RGB));
 
-    RGB *out_data = (RGB *) malloc(out_size * out_size * sizeof(RGB));
-    RGB *slice_data = (RGB *) malloc(block_size * block_size * sizeof(RGB));
-    Image *out_slice = malloc(sizeof(Image));
+    for (int y = 0; y < out_blocks; y++) {
+        for (int x = 0; x < out_blocks; x++) {
 
-    Image *output_image = malloc(sizeof(Image));
-    output_image->data = out_data;
-    output_image->width = out_size;
-    output_image->height = out_size;
+            // coordinates of the next block in the output image
+            ImageCoordinates out_coord = {x * (block_size - overlap_size),
+                                          y * (block_size - overlap_size)};
 
-    int seed = RSEED;
-    //srand(seed);
-    srand(time(NULL));
+            if (x == 0 && y == 0) {
+                // case: corner
+                // start out image with a random block of the src image
 
-    int *inds = (int *) malloc(2 * sizeof(int));
-    Matrix *mat;
-
-    for (int i = 0; i < out_num_blocks; i++) {
-        for (int j = 0; j < out_num_blocks; j++) {
-//            printf("quilt: start, i=%d, j=%d\n", i, j);
-
-            double *errors;
-
-            // top left corner
-            if (i == 0 && j == 0) {
-                int rand_block_row = rand() % num_blocks_h;
-                int rand_block_col = rand() % num_blocks_w;
-
-                copy_blocks(image->data, out_data, im_width, rand_block_row * block_size,
-                            rand_block_col * block_size, out_size, 0, 0,
-                            block_size, block_size);
-            } else if (j == 0) {
-                copy_blocks(out_data, slice_data, out_size, 0,
-                            (i) * (block_size - overlap_size), block_size, 0, 0,
-                            block_size, overlap_size);
-                out_slice->data = slice_data;
-                out_slice->width = block_size;
-                out_slice->height = block_size;
-                errors = calc_errors(image, out_slice, block_size, overlap_size, "above");
-                find_indexes(errors, inds, num_blocks_h, num_blocks_w);
-                ImageCoordinates block_coords = {inds[0], inds[1]};
-                ImageCoordinates out_coords = {i * (block_size - overlap_size), j * (block_size - overlap_size)};
-                mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, ABOVE);
-//                print_matrix(mat);
-//                printf("in: %d:%d, out: %d:%d\n", image->height, image->width, block_size-overlap_size, block_size);
-                copy_blocks_cut(image->data,out_data,im_width,inds[0] * (block_size - overlap_size) + overlap_size,
-                                inds[1] * (block_size - overlap_size) + overlap_size, out_size,
-                                (block_size - overlap_size) * i, 0, block_size,mat);
-                store_image(output_image, "output/first.jpeg");
-//                exit(0);
+                ImageCoordinates src_coord = {rand() % (image->width - block_size),
+                                              rand() % (image->height - block_size)};
+                printf("%d, %d", src_coord.x, src_coord.y);
+                copy_block(image, src_coord, out_im, out_coord, block_size);
+            } else if (y == 0) {
+                // case left overlap
+                double *errors = calc_errors(image, out_im, out_coord, block_size,
+                                             overlap_size, LEFT);
+                ImageCoordinates src_coord = find_best_block(errors, image, block_size);
                 free(errors);
-            } else if (i == 0) {
-                copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
-                            0, block_size, 0, 0,
-                            overlap_size, block_size);
-                out_slice->data = slice_data;
-                out_slice->width = block_size;
-                out_slice->height = block_size;
-                errors = calc_errors(image, out_slice, block_size, overlap_size, "left");
-                find_indexes(errors, inds, num_blocks_h, num_blocks_w);
-
-//                inds[0] = rand() % num_blocks_h;
-//                inds[1] = rand() % num_blocks_w;
-                ImageCoordinates block_coords = {inds[0], inds[1]};
-                ImageCoordinates out_coords = {i * (block_size - overlap_size), j * (block_size - overlap_size)};
-                mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, LEFT);
-
-                copy_blocks_cut(image->data, out_data,
-                            im_width,inds[0] * (block_size - overlap_size) + overlap_size,
-                            inds[1] * (block_size - overlap_size) + overlap_size,
-                            out_size,0,j * (block_size - overlap_size),block_size, mat);
+                Matrix *cut = min_cut(
+                        image,
+                        out_im,
+                        src_coord,
+                        out_coord,
+                        block_size,
+                        overlap_size,
+                        LEFT
+                );
+                mask_copy_block(
+                        image,
+                        out_im,
+                        cut,
+                        src_coord,
+                        out_coord,
+                        block_size
+                );
+                free_matrix(cut);
+            } else if (x == 0) {
+                // case left overlap
+                double *errors = calc_errors(image, out_im, out_coord, block_size,
+                                             overlap_size, ABOVE);
+                ImageCoordinates src_coord = find_best_block(errors, image, block_size);
                 free(errors);
+                Matrix *cut = min_cut(
+                        image,
+                        out_im,
+                        src_coord,
+                        out_coord,
+                        block_size,
+                        overlap_size,
+                        ABOVE
+                );
+                mask_copy_block(
+                        image,
+                        out_im,
+                        cut,
+                        src_coord,
+                        out_coord,
+                        block_size
+                );
+                free_matrix(cut);
             } else {
-
-                copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
-                            (i) * (block_size - overlap_size), block_size, 0, 0,
-                            overlap_size, block_size);
-                copy_blocks(out_data, slice_data, out_size, (j + 1) * (block_size - overlap_size),
-                            (i) * (block_size - overlap_size), block_size, overlap_size, 0,
-                            block_size - overlap_size, overlap_size);
-                out_slice->data = slice_data;
-                out_slice->width = block_size;
-                out_slice->height = block_size;
-                errors = calc_errors(image, out_slice, block_size, overlap_size, "above");
-                find_indexes(errors, inds, num_blocks_h, num_blocks_w);
-
-                ImageCoordinates block_coords = {inds[0], inds[1]};
-                ImageCoordinates out_coords = {i * (block_size - overlap_size), j * (block_size - overlap_size)};
-                mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, ABOVE);
-//                inds[0] = rand() % num_blocks_h;
-//                inds[1] = rand() % num_blocks_w;
-                copy_blocks_cut(image->data,
-                            out_data,
-                            im_width,
-                            inds[0] * (block_size - overlap_size) + overlap_size,
-                            inds[1] * (block_size - overlap_size) + overlap_size,
-                            out_size,
-                            (block_size - overlap_size) * i,
-                            (block_size - overlap_size) * j,
-                            block_size,mat);
-                out_slice->data = slice_data;
-                out_slice->width = block_size;
-                out_slice->height = block_size;
-                double *errors_left = calc_errors(image, out_slice, block_size, overlap_size, "left");
-                double *errors_corner = calc_errors(image, out_slice, block_size, overlap_size, "corner");
-                for (int y = 0; y < num_blocks_h; y++) {
-                    for (int x = 0; x < num_blocks_w; x++) {
-                        int idx = y * num_blocks_w + x;
-                        errors[idx] += (errors_left[idx] - errors_corner[idx]);
-                    }
-                }
-                find_indexes(errors, inds, num_blocks_h, num_blocks_w);
-
-                block_coords = (ImageCoordinates) {inds[0], inds[1]};
-                out_coords = (ImageCoordinates) {i * (block_size - overlap_size), j * (block_size - overlap_size)};
-                mat = min_cut(image, output_image, block_coords, out_coords, block_size, overlap_size, CORNER);
-
-                copy_blocks_cut(image->data,
-                            out_data,
-                            im_width,
-                            inds[0] * (block_size - overlap_size) + overlap_size,
-                            inds[1] * (block_size - overlap_size) + overlap_size,
-                            out_size,
-                            0,
-                            j * (block_size - overlap_size),
-                            block_size, mat);
-
-                free(errors_left);
-                free(errors_corner);
+                // case left overlap
+                double *errors = calc_errors(image, out_im, out_coord, block_size,
+                                             overlap_size, CORNER);
+                ImageCoordinates src_coord = find_best_block(errors, image, block_size);
                 free(errors);
-//                printf(" %d\n", i);
-                store_image(output_image, "output/first.jpeg");
+                Matrix *cut = min_cut(
+                        image,
+                        out_im,
+                        src_coord,
+                        out_coord,
+                        block_size,
+                        overlap_size,
+                        CORNER
+                );
+                mask_copy_block(
+                        image,
+                        out_im,
+                        cut,
+                        src_coord,
+                        out_coord,
+                        block_size
+                );
+                free_matrix(cut);
             }
         }
     }
 
-    free(slice_data);
-    free(inds);
-
-    return output_image;
-
+    return out_im;
 }
-

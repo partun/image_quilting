@@ -33,7 +33,7 @@ void multi_time_quilt(Image *(*func)(Image *img, int block_size, int out_num_blo
                     myInt64 timer = start_tsc();
                     Image *quilt = func(img, i, j, k);
                     acc += stop_tsc(timer);
-                    printf("%d ", quilt->data->b);
+                    free_image(quilt);
                 }
                 fprintf(file, "%d,%d,%d,%llu\n", i, j, k, acc / number_of_iter);
             }
