@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "load_image.h"
+#include "quilting_opt.h"
 #include "quilting.h"
+#include "quilting_opt.h"
 #include "timing.h"
 
 
@@ -16,7 +18,9 @@ int main(int argc, char *argv[]) {
         char *image_path = argv[1];
         Image *img = read_image(image_path);
 
-        Image *quilt = quilting(img, 8, 20, 3);
+   //     Image *quilt = quilting_opt(img, 32, 8, 8);
+        Image *quilt = quilting(img, 32, 8, 8);
+        
         store_image(quilt, "output/quilt.jpeg");
 
         return (0);
