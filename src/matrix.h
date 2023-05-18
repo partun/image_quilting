@@ -2,10 +2,17 @@
 #define TEAM08_MATRIX_H
 
 typedef struct Matrix {
-    unsigned int width;
-    unsigned int height;
+    int width;
+    int height;
     int *data;
 } Matrix;
+
+typedef enum Direction {
+    ABOVE,
+    LEFT,
+    CORNER,
+    FIRST
+} Direction;
 
 void free_matrix(Matrix *m);
 

@@ -14,14 +14,14 @@ typedef struct RGB {
 } RGB;
 
 typedef struct Image {
-    unsigned int width;
-    unsigned int height;
+    int width;
+    int height;
     RGB *data;
 } Image;
 
 typedef struct ImageCoordinates {
-    unsigned int x;
-    unsigned int y;
+    int x;
+    int y;
 } ImageCoordinates;
 
 void free_image(Image *img);

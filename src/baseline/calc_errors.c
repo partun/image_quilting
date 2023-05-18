@@ -2,7 +2,6 @@
 // Created by Oleh Kuzyk on 10.03.23.
 //
 #include "calc_errors.h"
-#include "image.h"
 #include <stdlib.h>
 #include <float.h>
 
@@ -10,8 +9,10 @@
  * computes the overlap error for all possible src image blocks
  */
 double *
-calc_errors(Image *src, Image *out, ImageCoordinates out_coord, int block_size,
-            int overlap, Direction direction) {
+calc_errors(
+        Image *src, Image *out, ImageCoordinates out_coord, int block_size,
+        int overlap, Direction direction
+) {
 
     unsigned int src_idx;
     unsigned int out_idx;
@@ -79,7 +80,8 @@ ImageCoordinates find_best_block(const double *errors, Image *src, int block_siz
     unsigned int max_src_x = src->width - block_size;
     unsigned int max_src_y = src->height - block_size;
 
-    ImageCoordinates *candidate_coords = (ImageCoordinates *) malloc(max_src_x * max_src_y * sizeof(ImageCoordinates));
+    ImageCoordinates *candidate_coords = (ImageCoordinates *) malloc(
+            max_src_x * max_src_y * sizeof(ImageCoordinates));
     int candidate_idx = 0;
 
     for (int i = 0; i < max_src_x * max_src_y; i++) {

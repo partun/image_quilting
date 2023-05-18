@@ -1,7 +1,7 @@
-#include "quilting_opt.h"
-#include "calc_errors_opt.h"
-#include "load_image.h"
-#include "min_cut.h"
+#include "quilting.h"
+#include "src/baseline/calc_errors.h"
+#include "src/load_image.h"
+#include "src/baseline/min_cut.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,11 +10,12 @@
 
 #define RSEED 8
 
+double tolerance = 1;
 
 /*
  * copies block from source image to out image
  */
-void copy_block_opt(
+void copy_block(
         Image *src, ImageCoordinates src_coord, Image *out,
         ImageCoordinates out_coord, int block_size
 ) {
@@ -31,7 +32,7 @@ void copy_block_opt(
     }
 }
 
-void mask_copy_block_opt(
+void mask_copy_block(
         Image *source_image, Image *output_image, Matrix *mask,
         ImageCoordinates block_coords,
         ImageCoordinates output_coords, int block_size
@@ -66,12 +67,12 @@ void mask_copy_block_opt(
     }
 }
 
-Image *quilting_opt(
+Image *quilting_baseline(
         Image *image, int block_size, int out_blocks,
         int overlap_size
 ) {
-
     srand(time(NULL));
+
     if (block_size < overlap_size) {
         fprintf(stderr,
                 "error: quilting block size (%d) is smaller than the overlap size "
@@ -108,12 +109,12 @@ Image *quilting_opt(
                 ImageCoordinates src_coord = {rand() % (image->width - block_size),
                                               rand() % (image->height - block_size)};
                 printf("%d, %d", src_coord.x, src_coord.y);
-                copy_block_opt(image, src_coord, out_im, out_coord, block_size);
+                copy_block(image, src_coord, out_im, out_coord, block_size);
             } else if (y == 0) {
                 // case left overlap
-                int *errors = calc_errors_opt(image, out_im, out_coord, block_size,
+                double *errors = calc_errors(image, out_im, out_coord, block_size,
                                              overlap_size, LEFT);
-                ImageCoordinates src_coord = find_best_block_opt(errors, image, block_size);
+                ImageCoordinates src_coord = find_best_block(errors, image, block_size);
                 free(errors);
                 Matrix *cut = min_cut(
                         image,
@@ -124,7 +125,7 @@ Image *quilting_opt(
                         overlap_size,
                         LEFT
                 );
-                mask_copy_block_opt(
+                mask_copy_block(
                         image,
                         out_im,
                         cut,
@@ -135,9 +136,9 @@ Image *quilting_opt(
                 free_matrix(cut);
             } else if (x == 0) {
                 // case left overlap
-                int *errors = calc_errors_opt(image, out_im, out_coord, block_size,
+                double *errors = calc_errors(image, out_im, out_coord, block_size,
                                              overlap_size, ABOVE);
-                ImageCoordinates src_coord = find_best_block_opt(errors, image, block_size);
+                ImageCoordinates src_coord = find_best_block(errors, image, block_size);
                 free(errors);
                 Matrix *cut = min_cut(
                         image,
@@ -148,7 +149,7 @@ Image *quilting_opt(
                         overlap_size,
                         ABOVE
                 );
-                mask_copy_block_opt(
+                mask_copy_block(
                         image,
                         out_im,
                         cut,
@@ -159,9 +160,9 @@ Image *quilting_opt(
                 free_matrix(cut);
             } else {
                 // case left overlap
-                int *errors = calc_errors_opt(image, out_im, out_coord, block_size,
+                double *errors = calc_errors(image, out_im, out_coord, block_size,
                                              overlap_size, CORNER);
-                ImageCoordinates src_coord = find_best_block_opt(errors, image, block_size);
+                ImageCoordinates src_coord = find_best_block(errors, image, block_size);
                 free(errors);
                 Matrix *cut = min_cut(
                         image,
@@ -172,7 +173,7 @@ Image *quilting_opt(
                         overlap_size,
                         CORNER
                 );
-                mask_copy_block_opt(
+                mask_copy_block(
                         image,
                         out_im,
                         cut,

@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include "load_image.h"
-#include "quilting_opt.h"
-#include "quilting.h"
-#include "quilting_opt.h"
+#include "src/baseline/quilting.h"
+#include "src/opt_1/quilting_opt.h"
 #include "timing.h"
 
 
@@ -18,9 +17,9 @@ int main(int argc, char *argv[]) {
         char *image_path = argv[1];
         Image *img = read_image(image_path);
 
-   //     Image *quilt = quilting_opt(img, 32, 8, 8);
-        Image *quilt = quilting(img, 32, 8, 8);
-        
+        //     Image *quilt = quilting_opt(img, 32, 8, 8);
+        Image *quilt = quilting_baseline(img, 32, 8, 8);
+
         store_image(quilt, "output/quilt.jpeg");
 
         return (0);
@@ -36,9 +35,22 @@ int main(int argc, char *argv[]) {
         }
 
 //        time_quilt((quilting), img, 10, 14, 3);
-        multi_time_quilt((quilting), file, img,
-                         16, 17, 2, 10,
-                         11, 2, 4, 9, 2);
+
+        printf("opt_1");
+        multi_time_quilt(
+                (quilting_opt), file, img,
+                64, 65, 1,
+                12, 13, 1,
+                24, 25, 1
+        );
+        printf("baseline");
+        multi_time_quilt(
+                (quilting_baseline), file, img,
+                64, 65, 1,
+                12, 13, 1,
+                24, 25, 1
+        );
+
 
         free_image(img);
         fclose(file);

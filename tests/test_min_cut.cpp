@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "quilting.h"
+#include "src/baseline/quilting.h"
 #include "load_image.h"
 #include "image.h"
 #include "matrix.h"
-#include "min_cut.h"
+#include "src/baseline/min_cut.h"
 }
 
 #define R {255, 0, 0}

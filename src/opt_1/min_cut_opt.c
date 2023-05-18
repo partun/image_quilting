@@ -1,15 +1,16 @@
-#include "calc_errors.h"
-#include "image.h"
-#include "matrix.h"
+#include "src/matrix.h"
+#include "src/image.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 /*
  * calculates the error in the overlapping section
  */
-Matrix *calc_overlap_error(Image *source_image, Image *output_image, ImageCoordinates block_coords,
-                           ImageCoordinates output_coords,
-                           int overlap_width, int overlap_height) {
+Matrix *calc_overlap_error_opt(
+        Image *source_image, Image *output_image, ImageCoordinates block_coords,
+        ImageCoordinates output_coords,
+        int overlap_width, int overlap_height
+) {
 
     int *overlap_error = (int *) malloc(overlap_width * overlap_height * sizeof(int));
 
@@ -42,7 +43,7 @@ Matrix *calc_overlap_error(Image *source_image, Image *output_image, ImageCoordi
  * cut[cut_x_idx, cut_y_idx] = 0;
  * cut[cut_x_idx, cut_y_idx:overlap_height] = 1;
  */
-void mark_cut_path(Matrix *cut, int cut_x_idx, int cut_y_idx) {
+void mark_cut_path_opt(Matrix *cut, int cut_x_idx, int cut_y_idx) {
     int idx = 0;
     for (; idx < cut_x_idx; idx++) {
         cut->data[cut_y_idx * cut->width + idx] = -1;
@@ -64,7 +65,7 @@ void mark_cut_path(Matrix *cut, int cut_x_idx, int cut_y_idx) {
  * 0 and  0 ->  0
  * 0 and -1 -> -1
  */
-Matrix *merge_cut_matrix(Matrix *cut_0, Matrix *cut_1) {
+Matrix *merge_cut_matrix_opt(Matrix *cut_0, Matrix *cut_1) {
 //    print_matrix(cut_0);
 //    printf("\n");
 //    print_matrix(cut_1);
@@ -90,7 +91,7 @@ Matrix *merge_cut_matrix(Matrix *cut_0, Matrix *cut_1) {
 }
 
 
-Matrix *calc_cut_mask(Matrix *error_matrix, int block_size) {
+Matrix *calc_cut_mask_opt(Matrix *error_matrix, int block_size) {
     int *overlap_errors = error_matrix->data;
     unsigned int overlap_width = error_matrix->width;
     unsigned int overlap_height = error_matrix->height;
@@ -153,7 +154,7 @@ Matrix *calc_cut_mask(Matrix *error_matrix, int block_size) {
     }
 
     // initialize backtracking
-    mark_cut_path(cut, cut_x_idx, overlap_height - 1);
+    mark_cut_path_opt(cut, cut_x_idx, overlap_height - 1);
 
     // backtracking and mark cut path
     for (int i = overlap_height - 1; i >= 0; i--) {
@@ -175,7 +176,7 @@ Matrix *calc_cut_mask(Matrix *error_matrix, int block_size) {
         }
 
         cut_x_idx = new_cut_x_idx;
-        mark_cut_path(cut, cut_x_idx, i);
+        mark_cut_path_opt(cut, cut_x_idx, i);
     }
 
     free_matrix(dp);
@@ -183,8 +184,9 @@ Matrix *calc_cut_mask(Matrix *error_matrix, int block_size) {
 }
 
 
-Matrix *min_cut(
-        Image *source_image, Image *output_image, ImageCoordinates block_coords, ImageCoordinates output_coords,
+Matrix *min_cut_opt(
+        Image *source_image, Image *output_image, ImageCoordinates block_coords,
+        ImageCoordinates output_coords,
         int block_size, int overlap, Direction direction
 ) {
     if (direction == FIRST) {
@@ -201,37 +203,42 @@ Matrix *min_cut(
     }
 
     if (direction == ABOVE) {
-        Matrix *error_matrix = calc_overlap_error(source_image, output_image, block_coords, output_coords,
-                                                  block_size,
-                                                  overlap);
+        Matrix *error_matrix = calc_overlap_error_opt(source_image, output_image, block_coords,
+                                                      output_coords,
+                                                      block_size,
+                                                      overlap);
 
         // transpose so that we can compute the ABOVE and the LEFT case the same way
         error_matrix = transpose(error_matrix);
-        Matrix *cut = calc_cut_mask(error_matrix, block_size);
+        Matrix *cut = calc_cut_mask_opt(error_matrix, block_size);
         cut = transpose(cut);
         return cut;
 
     } else if (direction == LEFT) {
-        Matrix *error_matrix = calc_overlap_error(source_image, output_image, block_coords, output_coords,
-                                                  overlap,
-                                                  block_size);
-        Matrix *cut = calc_cut_mask(error_matrix, block_size);
+        Matrix *error_matrix = calc_overlap_error_opt(source_image, output_image, block_coords,
+                                                      output_coords,
+                                                      overlap,
+                                                      block_size);
+        Matrix *cut = calc_cut_mask_opt(error_matrix, block_size);
         return cut;
 
     } else if (direction == CORNER) {
-        Matrix *error_matrix_left = calc_overlap_error(source_image, output_image, block_coords, output_coords,
-                                                       overlap,
-                                                       block_size);
-        Matrix *cut_left = calc_cut_mask(error_matrix_left, block_size);
+        Matrix *error_matrix_left = calc_overlap_error_opt(source_image, output_image, block_coords,
+                                                           output_coords,
+                                                           overlap,
+                                                           block_size);
+        Matrix *cut_left = calc_cut_mask_opt(error_matrix_left, block_size);
 
-        Matrix *error_matrix_above = calc_overlap_error(source_image, output_image, block_coords, output_coords,
-                                                        block_size,
-                                                        overlap);
+        Matrix *error_matrix_above = calc_overlap_error_opt(source_image, output_image,
+                                                            block_coords,
+                                                            output_coords,
+                                                            block_size,
+                                                            overlap);
         error_matrix_above = transpose(error_matrix_above);
-        Matrix *cut_above = calc_cut_mask(error_matrix_above, block_size);
+        Matrix *cut_above = calc_cut_mask_opt(error_matrix_above, block_size);
         cut_above = transpose(cut_above);
 
-        Matrix *cut = merge_cut_matrix(cut_left, cut_above);
+        Matrix *cut = merge_cut_matrix_opt(cut_left, cut_above);
         free_matrix(cut_above);
         return cut;
     } else {
