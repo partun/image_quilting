@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "tsc_x86.h"
 
-myInt64 CPU_FREQ_MHz = 3600;
+double CPU_FREQ_MHz = 3600;
 
 void time_quilt(
         Image *(*func)(Image *img, int block_size, int out_num_blocks, int overlap_size),
@@ -28,7 +28,7 @@ void multi_time_quilt(
 ) {
     int number_of_iter = 5;
     myInt64 acc = 0;
-    myInt64 secs = 0;
+    double secs = 0;
     fprintf(file, "block_size,number_of_blocks_in_output_image,overlap_size,number_of_cycles,"
                   "runtime_ms\n");
     for (int i = block_size_min; i < block_size_max; i += block_size_step) {
@@ -45,8 +45,8 @@ void multi_time_quilt(
                 }
                 acc = acc / number_of_iter;
                 secs = acc / (CPU_FREQ_MHz * 1000000);
-                fprintf(file, "%d,%d,%d,%llu,%llu\n", i, j, k, acc, secs);
-                printf("block: %d output: %d overlap: %d cycles: %llu runtime: %llus\n", i, j, k,
+                fprintf(file, "%d,%d,%d,%llu,%f\n", i, j, k, acc, secs);
+                printf("block: %d output: %d overlap: %d cycles: %llu runtime: %f\n", i, j, k,
                        acc, secs);
             }
         }
