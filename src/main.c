@@ -2,6 +2,7 @@
 #include "load_image.h"
 #include "src/baseline/quilting.h"
 #include "src/opt_1/quilting_opt.h"
+#include "src/opt_2/quilting_opt_2.h"
 #include "timing.h"
 
 
@@ -35,7 +36,13 @@ int main(int argc, char *argv[]) {
         }
 
 //        time_quilt((quilting), img, 10, 14, 3);
-
+        printf("opt_2");
+        multi_time_quilt(
+                (quilting_opt_2), file, img,
+                64, 65, 1,
+                12, 13, 1,
+                24, 25, 1
+        );
         printf("opt_1");
         multi_time_quilt(
                 (quilting_opt), file, img,
