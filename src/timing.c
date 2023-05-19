@@ -2,10 +2,10 @@
 // Created by emettaz on 01/05/23.
 //
 
-#include "src/baseline/quilting.h"
 #include "timing.h"
 #include <stdio.h>
 #include "tsc_x86.h"
+#include "load_image.h"
 
 double CPU_FREQ_MHz = 3600;
 

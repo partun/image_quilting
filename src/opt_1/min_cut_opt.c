@@ -39,9 +39,9 @@ Matrix *calc_overlap_error_opt(
 
 
 /*
- * cut[cut_x_idx, 0:cut_y_idx] = -1;
+ * cut[0:cut_x_idx, cut_y_idx] = -1;
  * cut[cut_x_idx, cut_y_idx] = 0;
- * cut[cut_x_idx, cut_y_idx:overlap_height] = 1;
+ * cut[cut_x_idx+1:overlap_width, cut_y_idx] = 1;
  */
 void mark_cut_path_opt(Matrix *cut, int cut_x_idx, int cut_y_idx) {
     int idx = 0;
@@ -72,7 +72,7 @@ Matrix *merge_cut_matrix_opt(Matrix *cut_0, Matrix *cut_1) {
 //    printf("\n");
 
     if (!matrix_equal_size(cut_0, cut_1)) {
-        printf(stderr, "matrices are not equal size, can no merge cut matrices");
+        fprintf(stderr, "matrices are not equal size, can no merge cut matrices");
     }
 
     int height = cut_0->height;
@@ -93,8 +93,8 @@ Matrix *merge_cut_matrix_opt(Matrix *cut_0, Matrix *cut_1) {
 
 Matrix *calc_cut_mask_opt(Matrix *error_matrix, int block_size) {
     int *overlap_errors = error_matrix->data;
-    unsigned int overlap_width = error_matrix->width;
-    unsigned int overlap_height = error_matrix->height;
+    int overlap_width = error_matrix->width;
+    int overlap_height = error_matrix->height;
 
 
     Matrix *dp = malloc(sizeof(Matrix));
@@ -137,9 +137,6 @@ Matrix *calc_cut_mask_opt(Matrix *error_matrix, int block_size) {
     cut->height = block_size;
     cut->data = (int *) calloc(cut->width * cut->height, sizeof(int));;
 
-    for (int i = 0; i < overlap_width * overlap_width; ++i) {
-        cut->data[i] = 1;
-    }
 
     // find start point of backtracking
     int cut_x_idx = 0;
@@ -157,7 +154,7 @@ Matrix *calc_cut_mask_opt(Matrix *error_matrix, int block_size) {
     mark_cut_path_opt(cut, cut_x_idx, overlap_height - 1);
 
     // backtracking and mark cut path
-    for (int i = overlap_height - 1; i >= 0; i--) {
+    for (int i = overlap_height - 2; i >= 0; i--) {
         int new_cut_x_idx = cut_x_idx;
         int min_error = dp->data[i * overlap_width + cut_x_idx];
         if (cut_x_idx < overlap_width - 1) {
@@ -242,7 +239,7 @@ Matrix *min_cut_opt(
         free_matrix(cut_above);
         return cut;
     } else {
-        printf(stderr, "invalid cut direction");
+        fprintf(stderr, "invalid cut direction");
         exit(1);
     }
 }

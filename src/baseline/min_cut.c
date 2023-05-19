@@ -92,8 +92,8 @@ Matrix *merge_cut_matrix(Matrix *cut_0, Matrix *cut_1) {
 
 Matrix *calc_cut_mask(Matrix *error_matrix, int block_size) {
     int *overlap_errors = error_matrix->data;
-    unsigned int overlap_width = error_matrix->width;
-    unsigned int overlap_height = error_matrix->height;
+    int overlap_width = error_matrix->width;
+    int overlap_height = error_matrix->height;
 
 
     Matrix *dp = malloc(sizeof(Matrix));
@@ -195,7 +195,7 @@ Matrix *min_cut(
         cut->height = block_size;
         cut->data = (int *) malloc(cut->width * cut->height * sizeof(int));
 
-        for (unsigned int i = 0; i < cut->width * cut->height; ++i) {
+        for (int i = 0; i < cut->width * cut->height; ++i) {
             cut->data[i] = 1;
         }
         return cut;

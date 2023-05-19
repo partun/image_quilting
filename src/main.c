@@ -3,6 +3,7 @@
 #include "src/baseline/quilting.h"
 #include "src/opt_1/quilting_opt.h"
 #include "src/opt_2/quilting_opt_2.h"
+#include "src/opt_3/quilting_opt_3.h"
 #include "timing.h"
 
 
@@ -19,7 +20,7 @@ int main(int argc, char *argv[]) {
         Image *img = read_image(image_path);
 
         //     Image *quilt = quilting_opt(img, 32, 8, 8);
-        Image *quilt = quilting_baseline(img, 32, 8, 8);
+        Image *quilt = quilting_baseline(img, 64, 12, 24);
 
         store_image(quilt, "output/quilt.jpeg");
 
@@ -36,13 +37,20 @@ int main(int argc, char *argv[]) {
         }
 
 //        time_quilt((quilting), img, 10, 14, 3);
-        printf("opt_2");
+        printf("opt_3");
         multi_time_quilt(
-                (quilting_opt_2), file, img,
+                (quilting_opt_3), file, img,
                 64, 65, 1,
                 12, 13, 1,
                 24, 25, 1
         );
+//        printf("opt_2");
+//        multi_time_quilt(
+//                (quilting_opt_2), file, img,
+//                64, 65, 1,
+//                12, 13, 1,
+//                24, 25, 1
+//        );
         printf("opt_1");
         multi_time_quilt(
                 (quilting_opt), file, img,
