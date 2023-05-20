@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <immintrin.h>
 
+#define UNROLL 16
+
+
 /*
  * calculates the error in the overlapping section
  */
@@ -13,30 +16,110 @@ Matrix *calc_overlap_error_opt_5(
         int overlap_width, int overlap_height
 ) {
 
+    ColorV *src_r_data = source_image->r_data;
+    ColorV *src_g_data = source_image->g_data;
+    ColorV *src_b_data = source_image->b_data;
+
+    ColorV *out_r_data = output_image->r_data;
+    ColorV *out_g_data = output_image->g_data;
+    ColorV *out_b_data = output_image->b_data;
+
+
     int *overlap_error = (int *) malloc(overlap_width * overlap_height * sizeof(int));
 
     int source_idx;
     int output_idx;
     int error_idx;
 
-    int r_error, g_error, b_error;
+    int r_error_0, g_error_0, b_error_0;
 
     for (int y = 0; y < overlap_height; y++) {
-        for (int x = 0; x < overlap_width; x++) {
-            error_idx = y * overlap_width + x;
-            source_idx = (block_coords.y + y) * source_image->width + (block_coords.x + x);
-            output_idx = (output_coords.y + y) * output_image->width + (output_coords.x + x);
+        error_idx = y * overlap_width;
+        source_idx = (block_coords.y + y) * source_image->width + block_coords.x;
+        output_idx = (output_coords.y + y) * output_image->width + output_coords.x;
 
-            r_error = source_image->r_data[source_idx] - output_image->r_data[output_idx];
-            g_error = source_image->g_data[source_idx] - output_image->g_data[output_idx];
-            b_error = source_image->b_data[source_idx] - output_image->b_data[output_idx];
+        int x = 0;
 
-            r_error = r_error * r_error;
-            g_error = g_error * g_error;
-            b_error = b_error * b_error;
+        for (; x < overlap_width; x += UNROLL) {
+            __m128i r_src = _mm_loadu_si128((const __m128i_u *) (src_r_data + source_idx));
+            __m128i g_src = _mm_loadu_si128((const __m128i_u *) (src_g_data + source_idx));
+            __m128i b_src = _mm_loadu_si128((const __m128i_u *) (src_b_data + source_idx));
+
+            __m128i r_out = _mm_loadu_si128((const __m128i_u *) (out_r_data + source_idx));
+            __m128i g_out = _mm_loadu_si128((const __m128i_u *) (out_g_data + source_idx));
+            __m128i b_out = _mm_loadu_si128((const __m128i_u *) (out_b_data + source_idx));
+
+            __m256i r_src_int_0 = _mm256_cvtepu8_epi32(r_src);
+            __m256i g_src_int_0 = _mm256_cvtepu8_epi32(g_src);
+            __m256i b_src_int_0 = _mm256_cvtepu8_epi32(b_src);
+
+            __m256i r_out_int_0 = _mm256_cvtepu8_epi32(r_out);
+            __m256i g_out_int_0 = _mm256_cvtepu8_epi32(g_out);
+            __m256i b_out_int_0 = _mm256_cvtepu8_epi32(b_out);
 
 
-            overlap_error[error_idx] += r_error + g_error + b_error;
+            r_src = (__m128i) _mm_permute_pd((__m128d) r_src, 0b01);
+            g_src = (__m128i) _mm_permute_pd((__m128d) g_src, 0b01);
+            b_src = (__m128i) _mm_permute_pd((__m128d) b_src, 0b01);
+
+            b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
+            b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
+            b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
+
+            __m256i r_src_int_1 = _mm256_cvtepu8_epi32(r_src);
+            __m256i g_src_int_1 = _mm256_cvtepu8_epi32(g_src);
+            __m256i b_src_int_1 = _mm256_cvtepu8_epi32(b_src);
+
+            __m256i r_out_int_1 = _mm256_cvtepu8_epi32(r_out);
+            __m256i g_out_int_1 = _mm256_cvtepu8_epi32(g_out);
+            __m256i b_out_int_1 = _mm256_cvtepu8_epi32(b_out);
+
+
+            r_src_int_0 = _mm256_sub_epi32(r_src_int_0, r_out_int_0);
+            g_src_int_0 = _mm256_sub_epi32(g_src_int_0, g_out_int_0);
+            b_src_int_0 = _mm256_sub_epi32(b_src_int_0, b_out_int_0);
+
+            r_src_int_0 = _mm256_mul_epi32(r_src_int_0, r_src_int_0);
+            g_src_int_0 = _mm256_mul_epi32(g_src_int_0, g_src_int_0);
+            b_src_int_0 = _mm256_mul_epi32(b_src_int_0, b_src_int_0);
+
+            r_src_int_1 = _mm256_sub_epi32(r_src_int_1, r_out_int_1);
+            g_src_int_1 = _mm256_sub_epi32(g_src_int_1, g_out_int_1);
+            b_src_int_1 = _mm256_sub_epi32(b_src_int_1, b_out_int_1);
+
+            r_src_int_1 = _mm256_mul_epi32(r_src_int_1, r_src_int_1);
+            g_src_int_1 = _mm256_mul_epi32(g_src_int_1, g_src_int_1);
+            b_src_int_1 = _mm256_mul_epi32(b_src_int_1, b_src_int_1);
+
+
+            __m256i err_0 = _mm256_add_epi16(r_src_int_0, g_src_int_0);
+            err_0 = _mm256_add_epi16(err_0, b_src_int_0);
+
+            __m256i err_1 = _mm256_add_epi16(r_src_int_1, g_src_int_1);
+            err_1 = _mm256_add_epi16(err_1, b_src_int_1);
+
+            _mm256_storeu_si256((__m256i_u *) (overlap_error + error_idx), err_0);
+            _mm256_storeu_si256((__m256i_u *) (overlap_error + error_idx + 8), err_1);
+
+            error_idx += UNROLL;
+            source_idx += UNROLL;
+            output_idx += UNROLL;
+        }
+
+        for (; x < overlap_width; x++) {
+            r_error_0 = src_r_data[source_idx] - out_r_data[output_idx];
+            g_error_0 = src_g_data[source_idx] - out_g_data[output_idx];
+            b_error_0 = src_b_data[source_idx] - out_b_data[output_idx];
+
+            r_error_0 = r_error_0 * r_error_0;
+            g_error_0 = g_error_0 * g_error_0;
+            b_error_0 = b_error_0 * b_error_0;
+
+            overlap_error[error_idx] += r_error_0 + g_error_0 + b_error_0;
+
+            error_idx++;
+            source_idx++;
+            output_idx++;
         }
     }
 
