@@ -36,6 +36,8 @@ typedef struct ImageCoordinates {
 
 void free_image(Image *img);
 
+void free_image_rgb(ImageRGB *img);
+
 void print_image_matrix(Image *img, Color color);
 
 int rgb_sq_error(RGB *a, RGB *b);

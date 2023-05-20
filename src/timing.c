@@ -46,7 +46,40 @@ void multi_time_quilt(
                 acc = acc / number_of_iter;
                 secs = acc / (CPU_FREQ_MHz * 1000000);
                 fprintf(file, "%d,%d,%d,%llu,%f\n", i, j, k, acc, secs);
-                printf("block: %d output: %d overlap: %d cycles: %llu runtime: %f\n", i, j, k,
+                printf("\nblock: %d output: %d overlap: %d cycles: %llu runtime: %f\n", i, j, k,
+                       acc, secs);
+            }
+        }
+    }
+}
+
+void multi_time_quilt_rgb(
+        ImageRGB *(*func)(ImageRGB *img, int block_size, int out_num_blocks, int overlap_size),
+        FILE *file, ImageRGB *img, int block_size_min, int block_size_max, int block_size_step,
+        int out_num_blocks_min, int out_num_blocks_max, int out_num_blocks_step,
+        int overlap_size_min, int overlap_size_max, int overlap_size_step
+) {
+    int number_of_iter = 10;
+    myInt64 acc = 0;
+    double secs = 0;
+    fprintf(file, "block_size,number_of_blocks_in_output_image,overlap_size,number_of_cycles,"
+                  "runtime_ms\n");
+    for (int i = block_size_min; i < block_size_max; i += block_size_step) {
+        printf("\nBlock size: %d ", i);
+        for (int j = out_num_blocks_min; j < out_num_blocks_max; j += out_num_blocks_step) {
+            printf("\nNumber of blocks: %d ", j);
+            for (int k = overlap_size_min; k < overlap_size_max; k += overlap_size_step) {
+                acc = 0;
+                for (int l = 0; l < number_of_iter; l++) {
+                    myInt64 timer = start_tsc();
+                    ImageRGB *quilt = func(img, i, j, k);
+                    acc += stop_tsc(timer);
+                    free_image_rgb(quilt);
+                }
+                acc = acc / number_of_iter;
+                secs = acc / (CPU_FREQ_MHz * 1000000);
+                fprintf(file, "%d,%d,%d,%llu,%f\n", i, j, k, acc, secs);
+                printf("\nblock: %d output: %d overlap: %d cycles: %llu runtime: %f\n", i, j, k,
                        acc, secs);
             }
         }

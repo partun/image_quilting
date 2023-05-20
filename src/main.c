@@ -5,6 +5,7 @@
 #include "src/opt_2/quilting_opt_2.h"
 #include "src/opt_3/quilting_opt_3.h"
 #include "src/opt_4/quilting_opt_4.h"
+#include "src/opt_5/quilting_opt_5.h"
 #include "timing.h"
 
 
@@ -18,11 +19,13 @@ int main(int argc, char *argv[]) {
         return 1;
     } else if (argc < 3) {
         char *image_path = argv[1];
+        ImageRGB *img_rgb = read_image_rgb(image_path);
         Image *img = read_image(image_path);
 
-        Image *quilt = quilting_opt_4(img, 32, 8, 8);
-       // Image *quilt = quilting_baseline(img, 64, 12, 24);
+        ImageRGB *quilt_rgb = quilting_opt_5(img_rgb, 64, 12, 24);
+        Image *quilt = quilting_baseline(img, 64, 12, 24);
 
+        store_image_rgb(quilt_rgb, "output/quilt_rgb.jpeg");
         store_image(quilt, "output/quilt.jpeg");
 
         return (0);
@@ -30,6 +33,7 @@ int main(int argc, char *argv[]) {
 
         char *image_path = argv[1];
         Image *img = read_image(image_path);
+        ImageRGB *img_rgb = read_image_rgb(image_path);
 
         FILE *file = fopen(argv[2], "w");
         if (file == NULL) {
@@ -38,9 +42,16 @@ int main(int argc, char *argv[]) {
         }
 
 //        time_quilt((quilting), img, 10, 14, 3);
+        printf("opt_5");
+        multi_time_quilt_rgb(
+                (quilting_opt_5), file, img_rgb,
+                64, 65, 1,
+                12, 13, 1,
+                24, 25, 1
+        );
         printf("opt_4");
         multi_time_quilt(
-                (quilting_opt_3), file, img,
+                (quilting_opt_4), file, img,
                 64, 65, 1,
                 12, 13, 1,
                 24, 25, 1
@@ -59,20 +70,20 @@ int main(int argc, char *argv[]) {
 //                12, 13, 1,
 //                24, 25, 1
 //        );
-        printf("opt_1");
-        multi_time_quilt(
-                (quilting_opt), file, img,
-                64, 65, 1,
-                12, 13, 1,
-                24, 25, 1
-        );
-        printf("baseline");
-        multi_time_quilt(
-                (quilting_baseline), file, img,
-                64, 65, 1,
-                12, 13, 1,
-                24, 25, 1
-        );
+//        printf("opt_1");
+//        multi_time_quilt(
+//                (quilting_opt), file, img,
+//                64, 65, 1,
+//                12, 13, 1,
+//                24, 25, 1
+//        );
+//        printf("baseline");
+//        multi_time_quilt(
+//                (quilting_baseline), file, img,
+//                64, 65, 1,
+//                12, 13, 1,
+//                24, 25, 1
+//        );
 
 
         free_image(img);

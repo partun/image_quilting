@@ -1,5 +1,5 @@
-#include "src/opt_3/calc_errors_opt_3.h"
-#include "src/opt_3/min_cut_opt_3.h"
+#include "src/opt_5/calc_errors_opt_5.h"
+#include "src/opt_5/min_cut_opt_5.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,8 +11,8 @@
 /*
  * copies block from source image to out image
  */
-void copy_block_opt_3(
-        Image *src, ImageCoordinates src_coord, Image *out,
+void copy_block_opt_5(
+        ImageRGB *src, ImageCoordinates src_coord, ImageRGB *out,
         ImageCoordinates out_coord, int block_size
 ) {
     unsigned int src_idx;
@@ -23,13 +23,15 @@ void copy_block_opt_3(
             src_idx = (y + src_coord.y) * src->width + x + src_coord.x;
             out_idx = (y + out_coord.y) * out->width + x + out_coord.x;
 
-            out->data[out_idx] = src->data[src_idx];
+            out->r_data[out_idx] = src->r_data[src_idx];
+            out->g_data[out_idx] = src->g_data[src_idx];
+            out->b_data[out_idx] = src->b_data[src_idx];
         }
     }
 }
 
-void mask_copy_block_opt_3(
-        Image *source_image, Image *output_image, Matrix *mask,
+void mask_copy_block_opt_5(
+        ImageRGB *source_image, ImageRGB *output_image, Matrix *mask,
         ImageCoordinates block_coords,
         ImageCoordinates output_coords, int block_size
 ) {
@@ -47,24 +49,26 @@ void mask_copy_block_opt_3(
                     (output_coords.y + y) * output_image->width + (output_coords.x + x);
 
             if (mask->data[mask_idx] == 1) {
-                output_image->data[output_idx] = source_image->data[source_idx];
+                output_image->r_data[output_idx] = source_image->r_data[source_idx];
+                output_image->g_data[output_idx] = source_image->g_data[source_idx];
+                output_image->b_data[output_idx] = source_image->b_data[source_idx];
             } else if (mask->data[mask_idx] == 0) {
-                output_image->data[output_idx].b =
-                        output_image->data[output_idx].b / 2 +
-                        source_image->data[source_idx].b / 2;
-                output_image->data[output_idx].g =
-                        output_image->data[output_idx].g / 2 +
-                        source_image->data[source_idx].g / 2;
-                output_image->data[output_idx].r =
-                        output_image->data[output_idx].r / 2 +
-                        source_image->data[source_idx].r / 2;
+                output_image->b_data[output_idx] =
+                        output_image->b_data[output_idx] / 2 +
+                        source_image->b_data[source_idx] / 2;
+                output_image->g_data[output_idx] =
+                        output_image->g_data[output_idx] / 2 +
+                        source_image->g_data[source_idx] / 2;
+                output_image->r_data[output_idx] =
+                        output_image->r_data[output_idx] / 2 +
+                        source_image->r_data[source_idx] / 2;
             }
         }
     }
 }
 
-Image *quilting_opt_3(
-        Image *image, int block_size, int out_blocks,
+ImageRGB *quilting_opt_5(
+        ImageRGB *image, int block_size, int out_blocks,
         int overlap_size
 ) {
 
@@ -89,11 +93,17 @@ Image *quilting_opt_3(
     int *errors = (int *) malloc(
             (image->width - block_size) * (image->height - block_size) * sizeof(int));
 
+    ImageCoordinates *candidate_coords = (ImageCoordinates *) malloc(
+            (image->width - block_size) * (image->height - block_size) *
+            sizeof(ImageCoordinates));
+
     int out_size = out_blocks * (block_size - overlap_size) + overlap_size;
-    Image *out_im = (Image *) malloc(sizeof(Image));
+    ImageRGB *out_im = (ImageRGB *) malloc(sizeof(ImageRGB));
     out_im->width = out_size;
     out_im->height = out_size;
-    out_im->data = (RGB *) malloc(out_size * out_size * sizeof(RGB));
+    out_im->r_data = (ColorV *) malloc(out_size * out_size * sizeof(ColorV));
+    out_im->g_data = (ColorV *) malloc(out_size * out_size * sizeof(ColorV));
+    out_im->b_data = (ColorV *) malloc(out_size * out_size * sizeof(ColorV));
 
     for (int y = 0; y < out_blocks; y++) {
         for (int x = 0; x < out_blocks; x++) {
@@ -108,13 +118,14 @@ Image *quilting_opt_3(
 
                 ImageCoordinates src_coord = {rand() % (image->width - block_size),
                                               rand() % (image->height - block_size)};
-                copy_block_opt_3(image, src_coord, out_im, out_coord, block_size);
+                copy_block_opt_5(image, src_coord, out_im, out_coord, block_size);
             } else if (y == 0) {
                 // case left overlap
-                calc_errors_opt_3(errors, image, out_im, out_coord, block_size,
+                calc_errors_opt_5(errors, image, out_im, out_coord, block_size,
                                   overlap_size, LEFT);
-                ImageCoordinates src_coord = find_best_block_opt_3(errors, image, block_size);
-                Matrix *cut = min_cut_opt_3(
+                ImageCoordinates src_coord = find_best_block_opt_5(errors, image,
+                                                                   block_size, candidate_coords);
+                Matrix *cut = min_cut_opt_5(
                         image,
                         out_im,
                         src_coord,
@@ -123,7 +134,7 @@ Image *quilting_opt_3(
                         overlap_size,
                         LEFT
                 );
-                mask_copy_block_opt_3(
+                mask_copy_block_opt_5(
                         image,
                         out_im,
                         cut,
@@ -134,10 +145,11 @@ Image *quilting_opt_3(
                 free_matrix(cut);
             } else if (x == 0) {
                 // case left overlap
-                calc_errors_opt_3(errors, image, out_im, out_coord, block_size,
+                calc_errors_opt_5(errors, image, out_im, out_coord, block_size,
                                   overlap_size, ABOVE);
-                ImageCoordinates src_coord = find_best_block_opt_3(errors, image, block_size);
-                Matrix *cut = min_cut_opt_3(
+                ImageCoordinates src_coord = find_best_block_opt_5(errors, image,
+                                                                   block_size, candidate_coords);
+                Matrix *cut = min_cut_opt_5(
                         image,
                         out_im,
                         src_coord,
@@ -146,7 +158,7 @@ Image *quilting_opt_3(
                         overlap_size,
                         ABOVE
                 );
-                mask_copy_block_opt_3(
+                mask_copy_block_opt_5(
                         image,
                         out_im,
                         cut,
@@ -157,10 +169,11 @@ Image *quilting_opt_3(
                 free_matrix(cut);
             } else {
                 // case left overlap
-                calc_errors_opt_3(errors, image, out_im, out_coord, block_size,
+                calc_errors_opt_5(errors, image, out_im, out_coord, block_size,
                                   overlap_size, CORNER);
-                ImageCoordinates src_coord = find_best_block_opt_3(errors, image, block_size);
-                Matrix *cut = min_cut_opt_3(
+                ImageCoordinates src_coord = find_best_block_opt_5(errors, image,
+                                                                   block_size, candidate_coords);
+                Matrix *cut = min_cut_opt_5(
                         image,
                         out_im,
                         src_coord,
@@ -169,7 +182,7 @@ Image *quilting_opt_3(
                         overlap_size,
                         CORNER
                 );
-                mask_copy_block_opt_3(
+                mask_copy_block_opt_5(
                         image,
                         out_im,
                         cut,
@@ -183,5 +196,6 @@ Image *quilting_opt_3(
     }
 
     free(errors);
+    free(candidate_coords);
     return out_im;
 }

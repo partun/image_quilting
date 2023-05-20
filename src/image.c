@@ -7,9 +7,16 @@ void free_image(Image *img) {
     free(img);
 }
 
+void free_image_rgb(ImageRGB *img) {
+    free(img->r_data);
+    free(img->g_data);
+    free(img->b_data);
+    free(img);
+}
+
 void print_image_matrix(Image *img, Color color) {
-    unsigned int width = img->width;
-    unsigned int height = img->height;
+    int width = img->width;
+    int height = img->height;
 
     switch (color) {
         case RED:
@@ -78,7 +85,7 @@ int image_equal(Image *a, Image *b) {
 /*
  * create a solid color image
  */
-Image *make_solid_image(unsigned int width, unsigned int height, RGB c) {
+Image *make_solid_image(int width, int height, RGB c) {
     RGB *data = (RGB *) malloc(width * height * sizeof(RGB));
     Image *img = (Image *) malloc(sizeof(Image));
     img->data = data;

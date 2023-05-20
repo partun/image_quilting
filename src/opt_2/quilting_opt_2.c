@@ -104,12 +104,11 @@ Image *quilting_opt_2(
 
                 ImageCoordinates src_coord = {rand() % (image->width - block_size),
                                               rand() % (image->height - block_size)};
-                printf("%d, %d", src_coord.x, src_coord.y);
                 copy_block_opt_2(image, src_coord, out_im, out_coord, block_size);
             } else if (y == 0) {
                 // case left overlap
                 int *errors = calc_errors_opt_2(image, out_im, out_coord, block_size,
-                                              overlap_size, LEFT);
+                                                overlap_size, LEFT);
                 ImageCoordinates src_coord = find_best_block_opt_2(errors, image, block_size);
                 free(errors);
                 Matrix *cut = min_cut_opt_2(
@@ -133,7 +132,7 @@ Image *quilting_opt_2(
             } else if (x == 0) {
                 // case left overlap
                 int *errors = calc_errors_opt_2(image, out_im, out_coord, block_size,
-                                              overlap_size, ABOVE);
+                                                overlap_size, ABOVE);
                 ImageCoordinates src_coord = find_best_block_opt_2(errors, image, block_size);
                 free(errors);
                 Matrix *cut = min_cut_opt_2(
@@ -157,7 +156,7 @@ Image *quilting_opt_2(
             } else {
                 // case left overlap
                 int *errors = calc_errors_opt_2(image, out_im, out_coord, block_size,
-                                              overlap_size, CORNER);
+                                                overlap_size, CORNER);
                 ImageCoordinates src_coord = find_best_block_opt_2(errors, image, block_size);
                 free(errors);
                 Matrix *cut = min_cut_opt_2(

@@ -104,7 +104,6 @@ Image *quilting_opt(
 
                 ImageCoordinates src_coord = {rand() % (image->width - block_size),
                                               rand() % (image->height - block_size)};
-                printf("%d, %d", src_coord.x, src_coord.y);
                 copy_block_opt(image, src_coord, out_im, out_coord, block_size);
             } else if (y == 0) {
                 // case left overlap

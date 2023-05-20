@@ -91,7 +91,7 @@ Image *quilting_opt_4(
 
     ImageCoordinates *candidate_coords = (ImageCoordinates *) malloc(
             (image->width - block_size) * (image->height - block_size) *
-             sizeof(ImageCoordinates));
+            sizeof(ImageCoordinates));
 
     int out_size = out_blocks * (block_size - overlap_size) + overlap_size;
     Image *out_im = (Image *) malloc(sizeof(Image));
@@ -112,14 +112,13 @@ Image *quilting_opt_4(
 
                 ImageCoordinates src_coord = {rand() % (image->width - block_size),
                                               rand() % (image->height - block_size)};
-                printf("%d, %d", src_coord.x, src_coord.y);
                 copy_block_opt_4(image, src_coord, out_im, out_coord, block_size);
             } else if (y == 0) {
                 // case left overlap
                 calc_errors_opt_4(errors, image, out_im, out_coord, block_size,
                                   overlap_size, LEFT);
-                ImageCoordinates src_coord = find_best_block_opt_4(errors, image, 
-                                                    block_size, candidate_coords);
+                ImageCoordinates src_coord = find_best_block_opt_4(errors, image,
+                                                                   block_size, candidate_coords);
                 Matrix *cut = min_cut_opt_4(
                         image,
                         out_im,
@@ -142,8 +141,8 @@ Image *quilting_opt_4(
                 // case left overlap
                 calc_errors_opt_4(errors, image, out_im, out_coord, block_size,
                                   overlap_size, ABOVE);
-                ImageCoordinates src_coord = find_best_block_opt_4(errors, image, 
-                                                    block_size, candidate_coords);
+                ImageCoordinates src_coord = find_best_block_opt_4(errors, image,
+                                                                   block_size, candidate_coords);
                 Matrix *cut = min_cut_opt_4(
                         image,
                         out_im,
@@ -166,8 +165,8 @@ Image *quilting_opt_4(
                 // case left overlap
                 calc_errors_opt_4(errors, image, out_im, out_coord, block_size,
                                   overlap_size, CORNER);
-                ImageCoordinates src_coord = find_best_block_opt_4(errors, image, 
-                                                    block_size, candidate_coords);
+                ImageCoordinates src_coord = find_best_block_opt_4(errors, image,
+                                                                   block_size, candidate_coords);
                 Matrix *cut = min_cut_opt_4(
                         image,
                         out_im,
