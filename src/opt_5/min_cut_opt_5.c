@@ -24,8 +24,12 @@ Matrix *calc_overlap_error_opt_5(
     ColorV *out_g_data = output_image->g_data;
     ColorV *out_b_data = output_image->b_data;
 
+    Matrix *errors = (Matrix *) malloc(sizeof(Matrix));
+    errors->data = (int *) malloc(overlap_width * overlap_height * sizeof(int));;
+    errors->width = overlap_width;
+    errors->height = overlap_height;
 
-    int *overlap_error = (int *) malloc(overlap_width * overlap_height * sizeof(int));
+    int *overlap_error = errors->data;
 
     int source_idx;
     int output_idx;
@@ -40,14 +44,14 @@ Matrix *calc_overlap_error_opt_5(
 
         int x = 0;
 
-        for (; x < overlap_width; x += UNROLL) {
+        for (; x < overlap_width - UNROLL + 1; x += UNROLL) {
             __m128i r_src = _mm_loadu_si128((const __m128i_u *) (src_r_data + source_idx));
             __m128i g_src = _mm_loadu_si128((const __m128i_u *) (src_g_data + source_idx));
             __m128i b_src = _mm_loadu_si128((const __m128i_u *) (src_b_data + source_idx));
 
-            __m128i r_out = _mm_loadu_si128((const __m128i_u *) (out_r_data + source_idx));
-            __m128i g_out = _mm_loadu_si128((const __m128i_u *) (out_g_data + source_idx));
-            __m128i b_out = _mm_loadu_si128((const __m128i_u *) (out_b_data + source_idx));
+            __m128i r_out = _mm_loadu_si128((const __m128i_u *) (out_r_data + output_idx));
+            __m128i g_out = _mm_loadu_si128((const __m128i_u *) (out_g_data + output_idx));
+            __m128i b_out = _mm_loadu_si128((const __m128i_u *) (out_b_data + output_idx));
 
             __m256i r_src_int_0 = _mm256_cvtepu8_epi32(r_src);
             __m256i g_src_int_0 = _mm256_cvtepu8_epi32(g_src);
@@ -123,10 +127,6 @@ Matrix *calc_overlap_error_opt_5(
         }
     }
 
-    Matrix *errors = (Matrix *) malloc(sizeof(Matrix));
-    errors->data = overlap_error;
-    errors->width = overlap_width;
-    errors->height = overlap_height;
 
     return errors;
 }
@@ -194,7 +194,13 @@ CutMatrix *merge_cut_matrix_opt_5(CutMatrix *cut_0, CutMatrix *cut_1) {
             char v0 = cut_0_data[y * width + x];
             char v1 = cut_1_data[y * width + x];
 
-            cut_0_data[y * width + x] = v0 < v1 ? v0 : v1;
+            if (v0 < v1) {
+                cut_0_data[y * width + x] = v0;
+            } else {
+                cut_0_data[y * width + x] = v1;
+            }
+
+//            cut_0_data[y * width + x] = v0 < v1 ? v0 : v1;
         }
     }
 
@@ -240,7 +246,7 @@ CutMatrix *calc_cut_mask_left_opt_5(Matrix *error_matrix, int block_size) {
     CutMatrix *cut = (CutMatrix *) malloc(sizeof(CutMatrix));
     cut->width = block_size;
     cut->height = block_size;
-    cut->data = (char *) calloc(cut->width * cut->height, sizeof(int));;
+    cut->data = (char *) calloc(cut->width * cut->height, sizeof(char));;
 
 
     // find start point of backtracking
@@ -322,7 +328,7 @@ CutMatrix *calc_cut_mask_above_opt_5(Matrix *error_matrix, int block_size) {
     CutMatrix *cut = (CutMatrix *) malloc(sizeof(CutMatrix));
     cut->width = block_size;
     cut->height = block_size;
-    cut->data = (char *) calloc(cut->width * cut->height, sizeof(int));;
+    cut->data = (char *) calloc(cut->width * cut->height, sizeof(char));
 
 
     // find start point of backtracking
