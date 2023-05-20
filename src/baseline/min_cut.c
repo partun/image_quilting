@@ -71,7 +71,7 @@ Matrix *merge_cut_matrix(Matrix *cut_0, Matrix *cut_1) {
 //    printf("\n");
 
     if (!matrix_equal_size(cut_0, cut_1)) {
-        printf(stderr, "matrices are not equal size, can no merge cut matrices");
+        fprintf(stderr, "matrices are not equal size, can no merge cut matrices");
     }
 
     int height = cut_0->height;

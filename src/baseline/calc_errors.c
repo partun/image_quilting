@@ -14,12 +14,12 @@ calc_errors(
         int overlap, Direction direction
 ) {
 
-    unsigned int src_idx;
-    unsigned int out_idx;
+    int src_idx;
+    int out_idx;
     int err_idx = 0;
 
-    unsigned int max_src_x = src->width - block_size;
-    unsigned int max_src_y = src->height - block_size;
+    int max_src_x = src->width - block_size;
+    int max_src_y = src->height - block_size;
 
     double *errors = (double *) malloc(max_src_x * max_src_y * sizeof(double));
 
@@ -77,8 +77,8 @@ calc_errors(
 ImageCoordinates find_best_block(const double *errors, Image *src, int block_size) {
     double tolerance = 1.3;
     double min_err = DBL_MAX;
-    unsigned int max_src_x = src->width - block_size;
-    unsigned int max_src_y = src->height - block_size;
+    int max_src_x = src->width - block_size;
+    int max_src_y = src->height - block_size;
 
     ImageCoordinates *candidate_coords = (ImageCoordinates *) malloc(
             max_src_x * max_src_y * sizeof(ImageCoordinates));

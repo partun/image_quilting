@@ -26,7 +26,7 @@ void multi_time_quilt(
         int out_num_blocks_min, int out_num_blocks_max, int out_num_blocks_step,
         int overlap_size_min, int overlap_size_max, int overlap_size_step
 ) {
-    int number_of_iter = 5;
+    int number_of_iter = 10;
     myInt64 acc = 0;
     double secs = 0;
     fprintf(file, "block_size,number_of_blocks_in_output_image,overlap_size,number_of_cycles,"

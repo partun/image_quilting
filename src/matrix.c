@@ -8,8 +8,8 @@ void free_matrix(Matrix *m) {
 }
 
 void print_matrix(Matrix *m) {
-    unsigned int width = m->width;
-    unsigned int height = m->height;
+    int width = m->width;
+    int height = m->height;
 
     printf("\n");
     for (int i = 0; i < height; ++i) {

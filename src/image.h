@@ -7,6 +7,8 @@ typedef enum Color {
     BLUE,
 } Color;
 
+typedef unsigned char ColorV;
+
 typedef struct RGB {
     unsigned char r;
     unsigned char g;
@@ -18,6 +20,14 @@ typedef struct Image {
     int height;
     RGB *data;
 } Image;
+
+typedef struct ImageRGB {
+    int width;
+    int height;
+    ColorV *r_data;
+    ColorV *g_data;
+    ColorV *b_data;
+} ImageRGB;
 
 typedef struct ImageCoordinates {
     int x;
@@ -34,7 +44,7 @@ int rgb_equal(RGB *a, RGB *b);
 
 int image_equal(Image *a, Image *b);
 
-Image *make_solid_image(unsigned int width, unsigned int height, RGB color);
+Image *make_solid_image(int width, int height, RGB color);
 
 
 #endif //TEAM08_IMAGE_H
