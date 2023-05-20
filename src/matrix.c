@@ -7,6 +7,12 @@ void free_matrix(Matrix *m) {
     free(m);
 }
 
+
+void free_cut_matrix(CutMatrix *m) {
+    free(m->data);
+    free(m);
+}
+
 void print_matrix(Matrix *m) {
     int width = m->width;
     int height = m->height;

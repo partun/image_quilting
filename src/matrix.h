@@ -7,6 +7,12 @@ typedef struct Matrix {
     int *data;
 } Matrix;
 
+typedef struct CutMatrix {
+    int width;
+    int height;
+    char *data;
+} CutMatrix;
+
 typedef enum Direction {
     ABOVE,
     LEFT,
@@ -15,6 +21,8 @@ typedef enum Direction {
 } Direction;
 
 void free_matrix(Matrix *m);
+
+void free_cut_matrix(CutMatrix *m);
 
 void print_matrix(Matrix *m);
 

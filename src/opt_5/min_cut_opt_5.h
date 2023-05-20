@@ -12,7 +12,7 @@ Matrix *calc_overlap_error_opt_5(
 );
 
 
-Matrix *min_cut_opt_5(
+CutMatrix *min_cut_opt_5(
         ImageRGB *source_image, ImageRGB *output_image, ImageCoordinates block_coords,
         ImageCoordinates output_coords,
         int block_size, int overlap, Direction direction

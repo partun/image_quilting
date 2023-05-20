@@ -31,7 +31,7 @@ void copy_block_opt_5(
 }
 
 void mask_copy_block_opt_5(
-        ImageRGB *source_image, ImageRGB *output_image, Matrix *mask,
+        ImageRGB *source_image, ImageRGB *output_image, CutMatrix *mask,
         ImageCoordinates block_coords,
         ImageCoordinates output_coords, int block_size
 ) {
@@ -125,7 +125,7 @@ ImageRGB *quilting_opt_5(
                                   overlap_size, LEFT);
                 ImageCoordinates src_coord = find_best_block_opt_5(errors, image,
                                                                    block_size, candidate_coords);
-                Matrix *cut = min_cut_opt_5(
+                CutMatrix *cut = min_cut_opt_5(
                         image,
                         out_im,
                         src_coord,
@@ -142,14 +142,14 @@ ImageRGB *quilting_opt_5(
                         out_coord,
                         block_size
                 );
-                free_matrix(cut);
+                free_cut_matrix(cut);
             } else if (x == 0) {
                 // case left overlap
                 calc_errors_opt_5(errors, image, out_im, out_coord, block_size,
                                   overlap_size, ABOVE);
                 ImageCoordinates src_coord = find_best_block_opt_5(errors, image,
                                                                    block_size, candidate_coords);
-                Matrix *cut = min_cut_opt_5(
+                CutMatrix *cut = min_cut_opt_5(
                         image,
                         out_im,
                         src_coord,
@@ -166,14 +166,14 @@ ImageRGB *quilting_opt_5(
                         out_coord,
                         block_size
                 );
-                free_matrix(cut);
+                free_cut_matrix(cut);
             } else {
                 // case left overlap
                 calc_errors_opt_5(errors, image, out_im, out_coord, block_size,
                                   overlap_size, CORNER);
                 ImageCoordinates src_coord = find_best_block_opt_5(errors, image,
                                                                    block_size, candidate_coords);
-                Matrix *cut = min_cut_opt_5(
+                CutMatrix *cut = min_cut_opt_5(
                         image,
                         out_im,
                         src_coord,
@@ -190,7 +190,7 @@ ImageRGB *quilting_opt_5(
                         out_coord,
                         block_size
                 );
-                free_matrix(cut);
+                free_cut_matrix(cut);
             }
         }
     }

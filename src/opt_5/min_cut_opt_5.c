@@ -137,7 +137,7 @@ Matrix *calc_overlap_error_opt_5(
  * cut[cut_x_idx, cut_y_idx] = 0;
  * cut[cut_x_idx+1:overlap_width, cut_y_idx] = 1;
  */
-void mark_cut_path_hori_opt_5(Matrix *cut, int cut_x_idx, int cut_y_idx) {
+void mark_cut_path_hori_opt_5(CutMatrix *cut, int cut_x_idx, int cut_y_idx) {
     int idx = 0;
     for (; idx < cut_x_idx; idx++) {
         cut->data[cut_y_idx * cut->width + idx] = -1;
@@ -154,7 +154,7 @@ void mark_cut_path_hori_opt_5(Matrix *cut, int cut_x_idx, int cut_y_idx) {
  * cut[cut_x_idx, cut_y_idx] = 0;
  * cut[cut_x_idx, cut_y_idx:overlap_height] = 1;
  */
-void mark_cut_path_vert_opt_5(Matrix *cut, int cut_x_idx, int cut_y_idx) {
+void mark_cut_path_vert_opt_5(CutMatrix *cut, int cut_x_idx, int cut_y_idx) {
     int idx = 0;
     for (; idx < cut_y_idx; idx++) {
         cut->data[idx * cut->width + cut_x_idx] = -1;
@@ -177,25 +177,24 @@ void mark_cut_path_vert_opt_5(Matrix *cut, int cut_x_idx, int cut_y_idx) {
  * 0 and  0 ->  0
  * 0 and -1 -> -1
  */
-Matrix *merge_cut_matrix_opt_5(Matrix *cut_0, Matrix *cut_1) {
-//    print_matrix(cut_0);
-//    printf("\n");
-//    print_matrix(cut_1);
-//    printf("\n");
+CutMatrix *merge_cut_matrix_opt_5(CutMatrix *cut_0, CutMatrix *cut_1) {
 
-    if (!matrix_equal_size(cut_0, cut_1)) {
+    if (cut_0->width != cut_1->width || cut_0->height != cut_1->height) {
         fprintf(stderr, "matrices are not equal size, can no merge cut matrices");
     }
 
     int height = cut_0->height;
     int width = cut_0->width;
 
+    char *cut_0_data = cut_0->data;
+    char *cut_1_data = cut_1->data;
+
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            int v0 = cut_0->data[y * width + x];
-            int v1 = cut_1->data[y * width + x];
+            char v0 = cut_0_data[y * width + x];
+            char v1 = cut_1_data[y * width + x];
 
-            cut_0->data[y * width + x] = v0 < v1 ? v0 : v1;
+            cut_0_data[y * width + x] = v0 < v1 ? v0 : v1;
         }
     }
 
@@ -203,7 +202,7 @@ Matrix *merge_cut_matrix_opt_5(Matrix *cut_0, Matrix *cut_1) {
 }
 
 
-Matrix *calc_cut_mask_left_opt_5(Matrix *error_matrix, int block_size) {
+CutMatrix *calc_cut_mask_left_opt_5(Matrix *error_matrix, int block_size) {
     int *overlap_errors = error_matrix->data;
     int overlap_width = error_matrix->width;
     int overlap_height = error_matrix->height;
@@ -238,10 +237,10 @@ Matrix *calc_cut_mask_left_opt_5(Matrix *error_matrix, int block_size) {
 //    free_matrix(error_matrix);
 
     // find min cut with backtracking
-    Matrix *cut = (Matrix *) malloc(sizeof(Matrix));
+    CutMatrix *cut = (CutMatrix *) malloc(sizeof(CutMatrix));
     cut->width = block_size;
     cut->height = block_size;
-    cut->data = (int *) calloc(cut->width * cut->height, sizeof(int));;
+    cut->data = (char *) calloc(cut->width * cut->height, sizeof(int));;
 
 
     // find start point of backtracking
@@ -287,7 +286,7 @@ Matrix *calc_cut_mask_left_opt_5(Matrix *error_matrix, int block_size) {
 }
 
 
-Matrix *calc_cut_mask_above_opt_5(Matrix *error_matrix, int block_size) {
+CutMatrix *calc_cut_mask_above_opt_5(Matrix *error_matrix, int block_size) {
     int *overlap_errors = error_matrix->data;
     int overlap_width = error_matrix->width;
     int overlap_height = error_matrix->height;
@@ -320,10 +319,10 @@ Matrix *calc_cut_mask_above_opt_5(Matrix *error_matrix, int block_size) {
 //    free_matrix(error_matrix);
 
     // find min cut with backtracking
-    Matrix *cut = (Matrix *) malloc(sizeof(Matrix));
+    CutMatrix *cut = (CutMatrix *) malloc(sizeof(CutMatrix));
     cut->width = block_size;
     cut->height = block_size;
-    cut->data = (int *) calloc(cut->width * cut->height, sizeof(int));;
+    cut->data = (char *) calloc(cut->width * cut->height, sizeof(int));;
 
 
     // find start point of backtracking
@@ -370,7 +369,7 @@ Matrix *calc_cut_mask_above_opt_5(Matrix *error_matrix, int block_size) {
 }
 
 
-Matrix *min_cut_opt_5(
+CutMatrix *min_cut_opt_5(
         ImageRGB *source_image, ImageRGB *output_image, ImageCoordinates block_coords,
         ImageCoordinates output_coords,
         int block_size, int overlap, Direction direction
@@ -382,7 +381,7 @@ Matrix *min_cut_opt_5(
                                                         block_size,
                                                         overlap);
 
-        Matrix *cut = calc_cut_mask_above_opt_5(error_matrix, block_size);
+        CutMatrix *cut = calc_cut_mask_above_opt_5(error_matrix, block_size);
         return cut;
 
     } else if (direction == LEFT) {
@@ -390,7 +389,7 @@ Matrix *min_cut_opt_5(
                                                         output_coords,
                                                         overlap,
                                                         block_size);
-        Matrix *cut = calc_cut_mask_left_opt_5(error_matrix, block_size);
+        CutMatrix *cut = calc_cut_mask_left_opt_5(error_matrix, block_size);
         return cut;
 
     } else if (direction == CORNER) {
@@ -399,17 +398,17 @@ Matrix *min_cut_opt_5(
                                                              output_coords,
                                                              overlap,
                                                              block_size);
-        Matrix *cut_left = calc_cut_mask_left_opt_5(error_matrix_left, block_size);
+        CutMatrix *cut_left = calc_cut_mask_left_opt_5(error_matrix_left, block_size);
 
         Matrix *error_matrix_above = calc_overlap_error_opt_5(source_image, output_image,
                                                               block_coords,
                                                               output_coords,
                                                               block_size,
                                                               overlap);
-        Matrix *cut_above = calc_cut_mask_above_opt_5(error_matrix_above, block_size);
+        CutMatrix *cut_above = calc_cut_mask_above_opt_5(error_matrix_above, block_size);
 
-        Matrix *cut = merge_cut_matrix_opt_5(cut_left, cut_above);
-        free_matrix(cut_above);
+        CutMatrix *cut = merge_cut_matrix_opt_5(cut_left, cut_above);
+        free_cut_matrix(cut_above);
         return cut;
     } else {
         fprintf(stderr, "invalid cut direction");
