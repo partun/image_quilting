@@ -84,17 +84,17 @@ Matrix *calc_overlap_error_opt_8(
             g_src_int_0 = _mm256_sub_epi32(g_src_int_0, g_out_int_0);
             b_src_int_0 = _mm256_sub_epi32(b_src_int_0, b_out_int_0);
 
-            r_src_int_0 = _mm256_mul_epi32(r_src_int_0, r_src_int_0);
-            g_src_int_0 = _mm256_mul_epi32(g_src_int_0, g_src_int_0);
-            b_src_int_0 = _mm256_mul_epi32(b_src_int_0, b_src_int_0);
+            r_src_int_0 = _mm256_mullo_epi32(r_src_int_0, r_src_int_0);
+            g_src_int_0 = _mm256_mullo_epi32(g_src_int_0, g_src_int_0);
+            b_src_int_0 = _mm256_mullo_epi32(b_src_int_0, b_src_int_0);
 
             r_src_int_1 = _mm256_sub_epi32(r_src_int_1, r_out_int_1);
             g_src_int_1 = _mm256_sub_epi32(g_src_int_1, g_out_int_1);
             b_src_int_1 = _mm256_sub_epi32(b_src_int_1, b_out_int_1);
 
-            r_src_int_1 = _mm256_mul_epi32(r_src_int_1, r_src_int_1);
-            g_src_int_1 = _mm256_mul_epi32(g_src_int_1, g_src_int_1);
-            b_src_int_1 = _mm256_mul_epi32(b_src_int_1, b_src_int_1);
+            r_src_int_1 = _mm256_mullo_epi32(r_src_int_1, r_src_int_1);
+            g_src_int_1 = _mm256_mullo_epi32(g_src_int_1, g_src_int_1);
+            b_src_int_1 = _mm256_mullo_epi32(b_src_int_1, b_src_int_1);
 
 
             __m256i err_0 = _mm256_add_epi32(r_src_int_0, g_src_int_0);
