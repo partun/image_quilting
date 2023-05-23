@@ -48,5 +48,6 @@ int image_equal(Image *a, Image *b);
 
 Image *make_solid_image(int width, int height, RGB color);
 
+ImageRGB *convert_image_to_image_rgb(Image *img);
 
 #endif //TEAM08_IMAGE_H

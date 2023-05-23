@@ -101,3 +101,21 @@ Image *make_solid_image(int width, int height, RGB c) {
     }
     return img;
 }
+
+ImageRGB *convert_image_to_image_rgb(Image *img) {
+    ImageRGB *out = (ImageRGB *) malloc(sizeof(ImageRGB));
+    out->width = img->width;
+    out->height = img->width;
+    out->r_data = malloc(out->width * out->height * sizeof(ColorV));
+    out->g_data = malloc(out->width * out->height * sizeof(ColorV));
+    out->b_data = malloc(out->width * out->height * sizeof(ColorV));
+
+
+    for (int i = 0; i < img->width * img->height; ++i) {
+        out->r_data[i] = img->data[i].r;
+        out->g_data[i] = img->data[i].g;
+        out->b_data[i] = img->data[i].b;
+    }
+
+    return out;
+}

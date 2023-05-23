@@ -6,6 +6,7 @@ extern "C" {
 #include "image.h"
 #include "matrix.h"
 #include "src/baseline/min_cut.h"
+#include "src/opt_6/min_cut_opt_6.h"
 }
 
 #define R {255, 0, 0}
@@ -81,42 +82,44 @@ TEST(min_cut, first) {
 
 
 TEST(min_cut, overlap_error) {
-    Image *src_image = make_solid_image(4, 4, R);
-    RGB output_data[24] = {
-            W, W, R, W, W, W,
-            W, W, R, R, W, W,
-            W, W, W, W, W, W,
-            W, W, W, R, W, W,
-    };
-    Image output_image = {6, 4, output_data};
+    Image *src_image = make_solid_image(32, 32, R);
+    Image *output_image = make_solid_image(32, 32, W);
 
+    ImageRGB *src_image_rgb = convert_image_to_image_rgb(src_image);
+    ImageRGB *output_image_rgb = convert_image_to_image_rgb(output_image);
 
     ImageCoordinates block_coords = {0, 0};
-    ImageCoordinates output_coords = {2, 0};
+    ImageCoordinates output_coords = {0, 0};
 
 
     Matrix *overlap_error = calc_overlap_error(
             src_image,
-            &output_image,
+            output_image,
             block_coords,
             output_coords,
-            2,
-            4
+            32,
+            32
     );
 
-    int expected[8] = {
-            0, 65025,
-            0, 0,
-            65025, 65025,
-            65025, 0
-    };
-    Matrix expected_matrix = {2, 4, expected};
+    Matrix *overlap_error_opt_6 = calc_overlap_error_opt_6(
+            src_image_rgb,
+            output_image_rgb,
+            block_coords,
+            output_coords,
+            32,
+            32
+    );
+
 
     print_matrix(overlap_error);
+    print_matrix(overlap_error_opt_6);
 
-    ASSERT_TRUE(matrix_equal(overlap_error, &expected_matrix));
+    ASSERT_TRUE(matrix_equal(overlap_error, overlap_error_opt_6));
 
+    free_image_rgb(src_image_rgb);
+    free_image_rgb(output_image_rgb);
     free_image(src_image);
+    free_image(output_image);
     free_matrix(overlap_error);
 }
 

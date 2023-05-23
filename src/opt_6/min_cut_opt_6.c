@@ -7,6 +7,25 @@
 #define UNROLL 16
 
 
+void print_128v(__m128i a) {
+    char out[16];
+    _mm_store_si128((__m128i *) &out, a);
+    for (int i = 0; i < 16; ++i) {
+        printf("%d ", out[i]);
+    }
+    printf("\n");
+}
+
+void print_256v(__m256i a) {
+    int out[8];
+    _mm256_storeu_si256((__m256i *) &out, a);
+    for (int i = 0; i < 8; ++i) {
+        printf("%d ", out[i]);
+    }
+    printf("\n");
+}
+
+
 /*
  * calculates the error in the overlapping section
  */
@@ -29,6 +48,7 @@ Matrix *calc_overlap_error_opt_6(
     errors->data = (int *) malloc(overlap_width * overlap_height * sizeof(int));;
     errors->width = overlap_width;
     errors->height = overlap_height;
+    
 
     int *overlap_error = errors->data;
 
@@ -84,24 +104,24 @@ Matrix *calc_overlap_error_opt_6(
             g_src_int_0 = _mm256_sub_epi32(g_src_int_0, g_out_int_0);
             b_src_int_0 = _mm256_sub_epi32(b_src_int_0, b_out_int_0);
 
-            r_src_int_0 = _mm256_mul_epi32(r_src_int_0, r_src_int_0);
-            g_src_int_0 = _mm256_mul_epi32(g_src_int_0, g_src_int_0);
-            b_src_int_0 = _mm256_mul_epi32(b_src_int_0, b_src_int_0);
+            r_src_int_0 = _mm256_mullo_epi32(r_src_int_0, r_src_int_0);
+            g_src_int_0 = _mm256_mullo_epi32(g_src_int_0, g_src_int_0);
+            b_src_int_0 = _mm256_mullo_epi32(b_src_int_0, b_src_int_0);
 
             r_src_int_1 = _mm256_sub_epi32(r_src_int_1, r_out_int_1);
             g_src_int_1 = _mm256_sub_epi32(g_src_int_1, g_out_int_1);
             b_src_int_1 = _mm256_sub_epi32(b_src_int_1, b_out_int_1);
 
-            r_src_int_1 = _mm256_mul_epi32(r_src_int_1, r_src_int_1);
-            g_src_int_1 = _mm256_mul_epi32(g_src_int_1, g_src_int_1);
-            b_src_int_1 = _mm256_mul_epi32(b_src_int_1, b_src_int_1);
+            r_src_int_1 = _mm256_mullo_epi32(r_src_int_1, r_src_int_1);
+            g_src_int_1 = _mm256_mullo_epi32(g_src_int_1, g_src_int_1);
+            b_src_int_1 = _mm256_mullo_epi32(b_src_int_1, b_src_int_1);
 
 
-            __m256i err_0 = _mm256_add_epi16(r_src_int_0, g_src_int_0);
-            err_0 = _mm256_add_epi16(err_0, b_src_int_0);
+            __m256i err_0 = _mm256_add_epi32(r_src_int_0, g_src_int_0);
+            err_0 = _mm256_add_epi32(err_0, b_src_int_0);
 
-            __m256i err_1 = _mm256_add_epi16(r_src_int_1, g_src_int_1);
-            err_1 = _mm256_add_epi16(err_1, b_src_int_1);
+            __m256i err_1 = _mm256_add_epi32(r_src_int_1, g_src_int_1);
+            err_1 = _mm256_add_epi32(err_1, b_src_int_1);
 
             _mm256_storeu_si256((__m256i_u *) (overlap_error + error_idx), err_0);
             _mm256_storeu_si256((__m256i_u *) (overlap_error + error_idx + 8), err_1);
