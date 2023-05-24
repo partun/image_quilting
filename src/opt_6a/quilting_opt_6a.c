@@ -94,9 +94,6 @@ ImageRGB *quilting_opt_6a(
     int *errors = (int *) malloc(
             (image->width - block_size) * (image->height - block_size) * sizeof(int));
 
-    ImageCoordinates *candidate_coords = (ImageCoordinates *) malloc(
-            (image->width - block_size) * (image->height - block_size) *
-            sizeof(ImageCoordinates));
 
     int out_size = out_blocks * (block_size - overlap_size) + overlap_size;
     ImageRGB *out_im = (ImageRGB *) malloc(sizeof(ImageRGB));
@@ -201,6 +198,5 @@ ImageRGB *quilting_opt_6a(
     }
 
     free(errors);
-    free(candidate_coords);
     return out_im;
 }
