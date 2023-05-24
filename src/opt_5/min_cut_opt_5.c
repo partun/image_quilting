@@ -66,8 +66,8 @@ Matrix *calc_overlap_error_opt_5(
             g_src = (__m128i) _mm_permute_pd((__m128d) g_src, 0b01);
             b_src = (__m128i) _mm_permute_pd((__m128d) b_src, 0b01);
 
-            b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
-            b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
+            r_out = (__m128i) _mm_permute_pd((__m128d) r_out, 0b01);
+            g_out = (__m128i) _mm_permute_pd((__m128d) g_out, 0b01);
             b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
 
             __m256i r_src_int_1 = _mm256_cvtepu8_epi32(r_src);

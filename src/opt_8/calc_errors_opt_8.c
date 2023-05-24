@@ -68,13 +68,13 @@ void calc_errors_opt_8(
                     int block_x = 0;
                     for (; block_x < overlap-UNROLL+1; block_x+=UNROLL) {
   
-                    __m128i r_src = _mm_loadu_si128((const __m128i_u *) (src_r_data + src_idx));
-                    __m128i g_src = _mm_loadu_si128((const __m128i_u *) (src_g_data + src_idx));
-                    __m128i b_src = _mm_loadu_si128((const __m128i_u *) (src_b_data + src_idx));
+                    __m128i r_src = _mm_loadu_si128((const __m128i *) (src_r_data + src_idx));
+                    __m128i g_src = _mm_loadu_si128((const __m128i *) (src_g_data + src_idx));
+                    __m128i b_src = _mm_loadu_si128((const __m128i *) (src_b_data + src_idx));
 
-                    __m128i r_out = _mm_loadu_si128((const __m128i_u *) (out_r_data + out_idx));
-                    __m128i g_out = _mm_loadu_si128((const __m128i_u *) (out_g_data + out_idx));
-                    __m128i b_out = _mm_loadu_si128((const __m128i_u *) (out_b_data + out_idx));
+                    __m128i r_out = _mm_loadu_si128((const __m128i *) (out_r_data + out_idx));
+                    __m128i g_out = _mm_loadu_si128((const __m128i *) (out_g_data + out_idx));
+                    __m128i b_out = _mm_loadu_si128((const __m128i *) (out_b_data + out_idx));
 
                     __m256i r_src_int_0 = _mm256_cvtepu8_epi32(r_src);
                     __m256i g_src_int_0 = _mm256_cvtepu8_epi32(g_src);
@@ -174,13 +174,13 @@ void calc_errors_opt_8(
                     int block_x = 0;
                     for (; block_x < block_size-UNROLL+1; block_x+=UNROLL) {
   
-                    __m128i r_src = _mm_loadu_si128((const __m128i_u *) (src_r_data + src_idx));
-                    __m128i g_src = _mm_loadu_si128((const __m128i_u *) (src_g_data + src_idx));
-                    __m128i b_src = _mm_loadu_si128((const __m128i_u *) (src_b_data + src_idx));
+                    __m128i r_src = _mm_loadu_si128((const __m128i *) (src_r_data + src_idx));
+                    __m128i g_src = _mm_loadu_si128((const __m128i *) (src_g_data + src_idx));
+                    __m128i b_src = _mm_loadu_si128((const __m128i *) (src_b_data + src_idx));
 
-                    __m128i r_out = _mm_loadu_si128((const __m128i_u *) (out_r_data + out_idx));
-                    __m128i g_out = _mm_loadu_si128((const __m128i_u *) (out_g_data + out_idx));
-                    __m128i b_out = _mm_loadu_si128((const __m128i_u *) (out_b_data + out_idx));
+                    __m128i r_out = _mm_loadu_si128((const __m128i *) (out_r_data + out_idx));
+                    __m128i g_out = _mm_loadu_si128((const __m128i *) (out_g_data + out_idx));
+                    __m128i b_out = _mm_loadu_si128((const __m128i *) (out_b_data + out_idx));
 
                     __m256i r_src_int_0 = _mm256_cvtepu8_epi32(r_src);
                     __m256i g_src_int_0 = _mm256_cvtepu8_epi32(g_src);
@@ -194,8 +194,8 @@ void calc_errors_opt_8(
                     g_src = (__m128i) _mm_permute_pd((__m128d) g_src, 0b01);
                     b_src = (__m128i) _mm_permute_pd((__m128d) b_src, 0b01);
 
-                    b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
-                    b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
+                    r_out = (__m128i) _mm_permute_pd((__m128d) r_out, 0b01);
+                    g_out = (__m128i) _mm_permute_pd((__m128d) g_out, 0b01);
                     b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
 
                     __m256i r_src_int_1 = _mm256_cvtepu8_epi32(r_src);
@@ -281,13 +281,13 @@ void calc_errors_opt_8(
                     int block_x = 0;
                     for (; block_x < overlap-UNROLL+1; block_x+=UNROLL) {
   
-                    __m128i r_src = _mm_loadu_si128((const __m128i_u *) (src_r_data + src_idx));
-                    __m128i g_src = _mm_loadu_si128((const __m128i_u *) (src_g_data + src_idx));
-                    __m128i b_src = _mm_loadu_si128((const __m128i_u *) (src_b_data + src_idx));
+                    __m128i r_src = _mm_loadu_si128((const __m128i *) (src_r_data + src_idx));
+                    __m128i g_src = _mm_loadu_si128((const __m128i *) (src_g_data + src_idx));
+                    __m128i b_src = _mm_loadu_si128((const __m128i *) (src_b_data + src_idx));
 
-                    __m128i r_out = _mm_loadu_si128((const __m128i_u *) (out_r_data + out_idx));
-                    __m128i g_out = _mm_loadu_si128((const __m128i_u *) (out_g_data + out_idx));
-                    __m128i b_out = _mm_loadu_si128((const __m128i_u *) (out_b_data + out_idx));
+                    __m128i r_out = _mm_loadu_si128((const __m128i *) (out_r_data + out_idx));
+                    __m128i g_out = _mm_loadu_si128((const __m128i *) (out_g_data + out_idx));
+                    __m128i b_out = _mm_loadu_si128((const __m128i *) (out_b_data + out_idx));
 
                     __m256i r_src_int_0 = _mm256_cvtepu8_epi32(r_src);
                     __m256i g_src_int_0 = _mm256_cvtepu8_epi32(g_src);
@@ -301,8 +301,8 @@ void calc_errors_opt_8(
                     g_src = (__m128i) _mm_permute_pd((__m128d) g_src, 0b01);
                     b_src = (__m128i) _mm_permute_pd((__m128d) b_src, 0b01);
 
-                    b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
-                    b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
+                    r_out = (__m128i) _mm_permute_pd((__m128d) r_out, 0b01);
+                    g_out = (__m128i) _mm_permute_pd((__m128d) g_out, 0b01);
                     b_out = (__m128i) _mm_permute_pd((__m128d) b_out, 0b01);
 
                     __m256i r_src_int_1 = _mm256_cvtepu8_epi32(r_src);
