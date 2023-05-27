@@ -40,6 +40,11 @@ add_executable(team08
         opt_6b/quilting_opt_6b.c
         opt_6b/min_cut_opt_6b.c
 
+        opt_6c/calc_errors_opt_6c.c
+        opt_6c/quilting_opt_6c.c
+        opt_6c/min_cut_opt_6c.c
+
+
         opt_7/calc_errors_opt_7.c
         opt_7/quilting_opt_7.c
         opt_7/min_cut_opt_7.c

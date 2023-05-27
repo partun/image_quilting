@@ -1,5 +1,6 @@
 import argparse
 from typing import NamedTuple
+
 import pandas as pd
 from matplotlib import pyplot as plt
 
@@ -26,11 +27,8 @@ def plot0(measurements, overlap, image):
     fig = plt.figure(figsize=(16, 8))
     fig_ax = fig.gca()
 
-
-
     for revi_key, revi in revisions.items():
         filtered = measurements[measurements["revision"] == revi_key].reset_index()
-
 
         fig_ax.plot(
             filtered["block_size"],
@@ -67,7 +65,8 @@ def plot0(measurements, overlap, image):
 def parse_data(data_path: str):
     measurements = pd.read_csv(data_path, sep=',', header=0)
 
-    measurements["output_size"] = (measurements['block_size'] - measurements["overlap_size"]) * (measurements["number_of_blocks_in_output_image"] - 1) + measurements['block_size']
+    measurements["output_size"] = (measurements['block_size'] - measurements["overlap_size"]) * (
+            measurements["number_of_blocks_in_output_image"] - 1) + measurements['block_size']
 
     return measurements
 
@@ -81,14 +80,11 @@ def main():
     print(args.data_path)
     measurements = parse_data(args.data_path)
 
-
     for overlap in sorted(set(measurements["overlap_size"])):
         data = measurements[measurements["overlap_size"] == overlap]
         data = data.reset_index()
 
         plot0(data, overlap, "leaf")
-
-   
 
 
 if __name__ == "__main__":
