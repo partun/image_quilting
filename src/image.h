@@ -7,6 +7,16 @@ typedef enum Color {
     BLUE,
 } Color;
 
+typedef enum ColorOrder {
+    RGB_ORDER,
+    RBG_ORDER,
+    GRB_ORDER,
+    GBR_ORDER,
+    BRG_ORDER,
+    BGR_ORDER,
+} ColorOrder;
+
+
 typedef unsigned char ColorV;
 
 typedef struct RGB {
@@ -34,6 +44,8 @@ typedef struct ImageCoordinates {
     int y;
 } ImageCoordinates;
 
+void print_image_order(ColorOrder order);
+
 void free_image(Image *img);
 
 void free_image_rgb(ImageRGB *img);
@@ -49,5 +61,7 @@ int image_equal(Image *a, Image *b);
 Image *make_solid_image(int width, int height, RGB color);
 
 ImageRGB *convert_image_to_image_rgb(Image *img);
+
+void permute_image_colors(ImageRGB *im, ColorOrder order);
 
 #endif //TEAM08_IMAGE_H
