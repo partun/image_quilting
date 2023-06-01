@@ -21,8 +21,8 @@
  */
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        printf("provide a image path as argument.\n");
-        return 1;
+        time_total();
+        return 0;
     } else if (argc < 3) {
         char *image_path = argv[1];
         ImageRGB *img_rgb = read_image_rgb(image_path);
