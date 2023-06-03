@@ -15,6 +15,7 @@
 #include "src/opt_8/quilting_opt_8.h"
 #include "src/opt_9/quilting_opt_9.h"
 #include "src/opt_10/quilting_opt_10.h"
+#include "src/opt_11/quilting_opt_11.h"
 #include "timing.h"
 
 
@@ -31,7 +32,7 @@ int main(int argc, char *argv[]) {
         ImageRGB *img_rgb = read_image_rgb(image_path);
 //        Image *img = read_image(image_path);
 
-        ImageRGB *quilt_rgb = quilting_opt_10(img_rgb, 64, 32, 24);
+        ImageRGB *quilt_rgb = quilting_opt_10(img_rgb, 64, 16, 24);
 //        Image *quilt = quilting_baseline(img, 64, 12, 24);
 
         store_image_rgb(quilt_rgb, "output/quilt_opt.jpeg");
@@ -50,20 +51,12 @@ int main(int argc, char *argv[]) {
             return (1);
         }
 
-//        time_quilt((quilting), img, 10, 14, 3);
-//        printf("opt_8");
+//        printf("opt_11");
 //        multi_time_quilt_rgb(
-//                (quilting_opt_8), file, img_rgb,
+//                (quilting_opt_11), file, img_rgb,
 //                64, 65, 1,
 //                12, 13, 1,
 //                32, 33, 1
-//        );1
-//        printf("opt_7");
-//        multi_time_quilt_rgb(
-//                (quilting_opt_7), file, img_rgb,
-//                64, 65, 1,
-//                12, 13, 1,
-//                24, 25, 1
 //        );
         printf("opt_10");
         multi_time_quilt_rgb(
@@ -79,6 +72,22 @@ int main(int argc, char *argv[]) {
                 12, 13, 1,
                 32, 33, 1
         );
+
+//        printf("opt_8");
+//        multi_time_quilt_rgb(
+//                (quilting_opt_8), file, img_rgb,
+//                64, 65, 1,
+//                12, 13, 1,
+//                32, 33, 1
+//        );1
+//        printf("opt_7");
+//        multi_time_quilt_rgb(
+//                (quilting_opt_7), file, img_rgb,
+//                64, 65, 1,
+//                12, 13, 1,
+//                24, 25, 1
+//        );        
+        
 //        printf("opt_6d");
 //        multi_time_quilt_rgb(
 //                (quilting_opt_6d), file, img_rgb,
