@@ -75,8 +75,7 @@ ImageRGB *quilting_opt_11(
     permute_image_colors(image, color_order);
 //    print_image_order(color_order);
 //    print_image_order(get_image_color_order_opt_11(image));
-//    srand(time(NULL));
-    srand(0);
+    srand(time(NULL));
     if (block_size < overlap_size) {
         fprintf(stderr,
                 "error: quilting block size (%d) is smaller than the overlap size "

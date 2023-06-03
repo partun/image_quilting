@@ -64,6 +64,10 @@ add_executable(team08
         opt_10/calc_errors_opt_10.c
         opt_10/quilting_opt_10.c
         opt_10/min_cut_opt_10.c
+        
+        opt_11/calc_errors_opt_11.c
+        opt_11/quilting_opt_11.c
+        opt_11/min_cut_opt_11.c
         )
 target_link_libraries(team08 PRIVATE ${JPEGLIB})
 
