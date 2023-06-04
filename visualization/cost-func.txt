@@ -1,0 +1,65 @@
+w - image width, h - image height, b - block size, o - overlap size, n - number of blocks
+
+adds:
+0,0: 1
+9b^2+2b+1
+
+left: (n-1)
+ w-b+1 + (w-b)(h-b+1) + (w-b)(h-b)(15b*o+2b+1)
++ 12b^2 + 26b*o + 10b + 9o + 3
++ 3(w-b)(h-b) + 4
+
+above: (n-1)
+w-b+1 + (w-b)(h-b+1) + (w-b)(h-b)(15b*o+2o+1)
++ 12b^2 + 12b*o + 15b + 2o^2 + 9o + 4
++ 3(w-b)(h-b) + 4
+
+corner: (n-1)^2
+w-b+1 + (w-b)(h-b+1) + (w-b)(h-b)(30b*o+2b+o-15o^2+2)
++ 25b^2 + 38b*o + 25b + 2o^2 + 18o + 8
++ 3(w-b)(h-b) + 4
+
+
+mults:
+0,0: 1
+3b^2+2b+1
+
+left: (n-1)
+(w-b)(h-b)*5b*o
++ 3b^2 + 11b*o + 5b - 1
++ 1
+
+above: (n-1)
+(w-b)(h-b)*5b*o
++ 3b^2 + 10b*o + 4b + o - 1
++ 1
+
+corner: (n-1)^2
+(w-b)(h-b)(10b*o-2o^2)
++ 9b^2 + 21b*o + 9b + o - 2
++ 1
+
+
+divisions:
+corner: (n-1)^2
+3b^2
+
+
+comparisons:
+0,0: 1
+3b^2+2b+1
+
+left: (n-1)
+ w-b+1 + (w-b)(h-b+1) + (w-b)(h-b)(b*o+2b+1)
++ 4b^2 + 7b*o + 18b + 6
++ 3(w-b)(h-b) + 2
+
+above: (n-1)
+w-b+1 + (w-b)(h-b+1) + (w-b)(h-b)(b*o+2o+1)
++ 3b^2 + 6b*o + 9b + o^2 + 8o + 5
++ 3(w-b)(h-b) + 2
+
+corner: (n-1)^2
+w-b+1 + (w-b)(h-b+1) + (w-b)(h-b)(b*o+2b-o-o^2+2)
++ 8b^2 + 13b*o + 29b + o^2 + 8o + 12
++ 3(w-b)(h-b) + 2
