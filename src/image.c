@@ -14,6 +14,66 @@ void free_image_rgb(ImageRGB *img) {
     free(img);
 }
 
+void permute_image_colors(ImageRGB *im, ColorOrder order) {
+    unsigned char *im_data_r = im->r_data;
+    unsigned char *im_data_g = im->g_data;
+    unsigned char *im_data_b = im->b_data;
+
+    switch (order) {
+        case GRB_ORDER:
+            im->r_data = im_data_g;
+            im->g_data = im_data_r;
+            im->b_data = im_data_b;
+            break;
+        case GBR_ORDER:
+            im->r_data = im_data_g;
+            im->g_data = im_data_b;
+            im->b_data = im_data_r;
+            break;
+        case RGB_ORDER:
+            break;
+        case RBG_ORDER:
+            im->r_data = im_data_r;
+            im->g_data = im_data_b;
+            im->b_data = im_data_g;
+            break;
+        case BRG_ORDER:
+            im->r_data = im_data_b;
+            im->g_data = im_data_r;
+            im->b_data = im_data_g;
+            break;
+
+        case BGR_ORDER:
+            im->r_data = im_data_b;
+            im->g_data = im_data_g;
+            im->b_data = im_data_r;
+            break;
+    }
+}
+
+void print_image_order(ColorOrder order) {
+    switch (order) {
+        case GRB_ORDER:
+            printf("GRB order\n");
+            break;
+        case GBR_ORDER:
+            printf("GBR order\n");
+            break;
+        case RGB_ORDER:
+            printf("RGB order\n");
+            break;
+        case RBG_ORDER:
+            printf("RBG order\n");
+            break;
+        case BRG_ORDER:
+            printf("BRG order\n");
+            break;
+        case BGR_ORDER:
+            printf("BGR order\n");
+            break;
+    }
+}
+
 void print_image_matrix(Image *img, Color color) {
     int width = img->width;
     int height = img->height;

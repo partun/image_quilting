@@ -26,4 +26,6 @@ void multi_time_quilt_rgb(
         int overlap_size_min, int overlap_size_max, int overlap_size_step
 );
 
+void time_total();
+
 #endif //TEAM08_SRC_TIMING_H_

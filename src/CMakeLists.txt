@@ -1,5 +1,6 @@
 
-find_library(JPEGLIB REQUIRED NAMES libjpeg.a PATHS "usr/local/lib")
+find_library(JPEGLIB REQUIRED NAMES libjpeg.so PATHS "usr/local/lib")
+
 
 add_executable(team08
         main.c load_image.c
@@ -44,6 +45,9 @@ add_executable(team08
         opt_6c/quilting_opt_6c.c
         opt_6c/min_cut_opt_6c.c
 
+        opt_6d/calc_errors_opt_6d.c
+        opt_6d/quilting_opt_6d.c
+        opt_6d/min_cut_opt_6d.c
 
         opt_7/calc_errors_opt_7.c
         opt_7/quilting_opt_7.c
@@ -52,6 +56,18 @@ add_executable(team08
         opt_8/calc_errors_opt_8.c
         opt_8/quilting_opt_8.c
         opt_8/min_cut_opt_8.c
+
+        opt_9/calc_errors_opt_9.c
+        opt_9/quilting_opt_9.c
+        opt_9/min_cut_opt_9.c
+
+        opt_10/calc_errors_opt_10.c
+        opt_10/quilting_opt_10.c
+        opt_10/min_cut_opt_10.c
+        
+        opt_11/calc_errors_opt_11.c
+        opt_11/quilting_opt_11.c
+        opt_11/min_cut_opt_11.c
         )
 target_link_libraries(team08 PRIVATE ${JPEGLIB})
 
