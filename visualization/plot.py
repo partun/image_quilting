@@ -1,4 +1,3 @@
-import argparse
 from typing import NamedTuple
 
 import pandas as pd
@@ -20,15 +19,16 @@ revisions = {
     "opt_5": Revision("non-interleved image", 0, "orange", "--"),
     "opt_6": Revision("vectorized min-cut overlap error", 0, "cornflowerblue", "-"),
     "opt_6a": Revision("vectorized overlap error (i16)", 0, "navy", "-"),
-    "opt_6c": Revision("early stopping", 0, "green", "-"),
+    "opt_6b": Revision("early stopping combined color", 0, "navy", "-"),
+    "opt_6c": Revision("early stopping rgb order", 0, "green", "-"),
     "opt_6d": Revision("improved src image locality", 0, "orange", "-"),
     "opt_8": Revision("vectorized overlap error (i32)", 0, "purple", "-"),
     "opt_9": Revision("vectorized overlap error with early stopping", 0, "purple", "-"),
-    "opt_10": Revision("color permutation", 0, "black", "-"),
+    "opt_10": Revision("automatic color permutation", 0, "black", "-"),
 }
 
 
-def plot_sec(measurements, overlap, image):
+def plot_sec(measurements, overlap, image, cpu):
     plt.style.use("seaborn-v0_8-darkgrid")
     fig = plt.figure(figsize=(16, 8))
     fig_ax = fig.gca()
@@ -47,7 +47,7 @@ def plot_sec(measurements, overlap, image):
             marker="o"
         )
 
-    plt.title(f"Quilting Runtime [i7-8550U @ 1.8 GHz, overlap = {overlap} * block_size]",
+    plt.title(f"Quilting Runtime [{cpu}, overlap = {overlap} * block_size]",
               loc="left", fontsize=20, fontweight="bold",
               x=-0.015, y=1.06
               )
@@ -69,9 +69,10 @@ def plot_sec(measurements, overlap, image):
     plt.tight_layout()
     overlap_str = f"{overlap}".replace(".", "_")
     plt.savefig(f"visualization/plot_sec_{image}_overlap_{overlap_str}.png")
+    plt.close(fig)
 
 
-def plot_speedup(measurements, overlap, image):
+def plot_speedup(measurements, overlap, image, cpu):
     plt.style.use("seaborn-v0_8-darkgrid")
     fig = plt.figure(figsize=(16, 8))
     fig_ax = fig.gca()
@@ -92,7 +93,7 @@ def plot_speedup(measurements, overlap, image):
             marker="o"
         )
 
-    plt.title(f"Quilting Speedup [i7-8550U @ 1.8 GHz, overlap = {overlap} * block_size]",
+    plt.title(f"Quilting Speedup [{cpu}, overlap = {overlap} * block_size]",
               loc="left", fontsize=20, fontweight="bold",
               x=-0.015, y=1.06
               )
@@ -114,14 +115,13 @@ def plot_speedup(measurements, overlap, image):
     plt.tight_layout()
     overlap_str = f"{overlap}".replace(".", "_")
     plt.savefig(f"visualization/plot_speedup_{image}_overlap_{overlap_str}.png")
+    plt.close(fig)
 
 
-def plot_perf(measurements, relative_overlap, image, src_width, src_height):
+def plot_perf(measurements, relative_overlap, image, src_width, src_height, cpu):
     plt.style.use("seaborn-v0_8-darkgrid")
     fig = plt.figure(figsize=(16, 8))
     fig_ax = fig.gca()
-
-    baseline = measurements[measurements["revision"] == "baseline"].reset_index()
 
     for revi_key, revi in revisions.items():
         filtered = measurements[measurements["revision"] == revi_key].reset_index()
@@ -145,7 +145,7 @@ def plot_perf(measurements, relative_overlap, image, src_width, src_height):
             marker="o"
         )
 
-    plt.title(f"Quilting Performance [i7-8550U @ 1.8 GHz, overlap = {relative_overlap} * block_size]",
+    plt.title(f"Quilting Performance [{cpu}, overlap = {relative_overlap} * block_size]",
               loc="left", fontsize=20, fontweight="bold",
               x=-0.015, y=1.06
               )
@@ -167,6 +167,7 @@ def plot_perf(measurements, relative_overlap, image, src_width, src_height):
     plt.tight_layout()
     overlap_str = f"{relative_overlap}".replace(".", "_")
     plt.savefig(f"visualization/plot_perf_{image}_overlap_{overlap_str}.png")
+    plt.close(fig)
 
 
 def parse_data(data_path: str):
@@ -178,23 +179,20 @@ def parse_data(data_path: str):
     return measurements
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'data_path', help="path to the timings csv file created by the c timing function")
-    args = parser.parse_args()
-
-    print(args.data_path)
-    measurements = parse_data(args.data_path)
+def main(path, image_name, cpu):
+    measurements = parse_data(path)
 
     for relative_overlap in [0.25, 0.375, 0.5]:
         data = measurements[measurements["overlap_size"] == measurements["block_size"] * relative_overlap]
         data = data.reset_index()
 
-        plot_sec(data, relative_overlap, "leaf")
-        plot_speedup(data, relative_overlap, "leaf")
-        plot_perf(data, relative_overlap, "leaf", 129, 164)
+        plot_sec(data, relative_overlap, image_name, cpu)
+        plot_speedup(data, relative_overlap, image_name, cpu)
+        plot_perf(data, relative_overlap, image_name, 192, 192, cpu)
 
 
 if __name__ == "__main__":
-    main()
+    main("timings/measure_red_intel.csv", "red_intel", "i5-1135G7 @ 2.4 Ghz")
+    main("timings/measure_blue_intel.csv", "blue_wood_intel", "i5-1135G7 @ 2.4 Ghz")
+    main("timings/measure_red_amd.csv", "red_amd", "Ryzen 9 3900x @ 3.6 Ghz")
+    main("timings/measure_blue_amd.csv", "blue_wood_amd", "Ryzen 9 3900x @ 3.6 Ghz")

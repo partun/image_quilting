@@ -69,7 +69,7 @@ void calc_errors_corner_opt_9(
                     __m256i res_1 = _mm256_unpacklo_epi16(sq_err_0_lo, sq_err_0_hi);
 
                     error_vec_0 = _mm256_add_epi32(error_vec_0, res_0);
-                    error_vec_1 = _mm256_add_epi32(error_vec_1, res_0);
+                    error_vec_1 = _mm256_add_epi32(error_vec_1, res_1);
                     out_idx += UNROOL;
                     src_idx += UNROOL;
                 }

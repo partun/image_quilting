@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         ImageRGB *img_rgb = read_image_rgb(image_path);
 //        Image *img = read_image(image_path);
 
-        ImageRGB *quilt_rgb = quilting_opt_10(img_rgb, 64, 16, 24);
+        ImageRGB *quilt_rgb = quilting_opt_9(img_rgb, 64, 16, 24);
 //        Image *quilt = quilting_baseline(img, 64, 12, 24);
 
         store_image_rgb(quilt_rgb, "output/quilt_opt.jpeg");
@@ -61,9 +61,9 @@ int main(int argc, char *argv[]) {
         printf("opt_10");
         multi_time_quilt_rgb(
                 (quilting_opt_10), file, img_rgb,
-                64, 65, 1,
+                16, 17, 1,
                 12, 13, 1,
-                32, 33, 1
+                4, 5, 1
         );
         printf("opt_9");
         multi_time_quilt_rgb(
@@ -72,29 +72,28 @@ int main(int argc, char *argv[]) {
                 12, 13, 1,
                 32, 33, 1
         );
+        printf("opt_8");
+        multi_time_quilt_rgb(
+                (quilting_opt_8), file, img_rgb,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("opt_7");
+        multi_time_quilt_rgb(
+                (quilting_opt_7), file, img_rgb,
+                64, 65, 1,
+                12, 13, 1,
+                24, 25, 1
+        );
 
-//        printf("opt_8");
-//        multi_time_quilt_rgb(
-//                (quilting_opt_8), file, img_rgb,
-//                64, 65, 1,
-//                12, 13, 1,
-//                32, 33, 1
-//        );1
-//        printf("opt_7");
-//        multi_time_quilt_rgb(
-//                (quilting_opt_7), file, img_rgb,
-//                64, 65, 1,
-//                12, 13, 1,
-//                24, 25, 1
-//        );        
-        
-//        printf("opt_6d");
-//        multi_time_quilt_rgb(
-//                (quilting_opt_6d), file, img_rgb,
-//                64, 65, 1,
-//                12, 13, 1,
-//                32, 33, 1
-//        );
+        printf("opt_6d");
+        multi_time_quilt_rgb(
+                (quilting_opt_6d), file, img_rgb,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
         printf("opt_6c");
         multi_time_quilt_rgb(
                 (quilting_opt_6c), file, img_rgb,
@@ -102,69 +101,69 @@ int main(int argc, char *argv[]) {
                 12, 13, 1,
                 32, 33, 1
         );
-//        printf("opt_6b");
-//        multi_time_quilt_rgb(
-//                (quilting_opt_6b), file, img_rgb,
-//                64, 65, 1,
-//                12, 13, 1,
-//                32, 33, 1
-//        );
-//        printf("opt_6a");
-//        multi_time_quilt_rgb(
-//                (quilting_opt_6a), file, img_rgb,
-//                64, 65, 1,
-//                12, 13 1,
-//                32, 33, 1
-//        );
-//        printf("opt_6");
-//        multi_time_quilt_rgb(
-//                (quilting_opt_6), file, img_rgb,
-//                64, 65, 1,
-//                12, 13, 1,
-//                32, 33, 1
-//        );
-//        printf("opt_5");
-//        multi_time_quilt_rgb(
-//                (quilting_opt_5), file, img_rgb,
-//                64, 65, 1,
-//                12, 13, 1,
-//                24, 25, 1
-//        );
-//        printf("opt_4");
-//        multi_time_quilt(
-//                (quilting_opt_4), file, img,
-//                64, 65, 1,
-//                12, 13, 1,
-//                24, 25, 1
-//        );
-//        printf("opt_3");
-//        multi_time_quilt(
-//                (quilting_opt_3), file, img,
-//                64, 65, 1,
-//                12, 13, 1,
-//               24, 25, 1
-//        );
-//        printf("opt_2");
-//        multi_time_quilt(
-//                (quilting_opt_2), file, img,
-//                64, 65, 1,
-//                12, 13, 1,
-//                24, 25, 1
-//        );
-//        printf("opt_1");
-//        multi_time_quilt(
-//                (quilting_opt), file, img,
-//                64, 65, 1,
-//                12, 13, 1,
-//                24, 25, 1
-//        );
-//        printf("baseline");
-//        multi_time_quilt(
-//                (quilting_baseline), file, img,
-//                64, 65, 1,
-//                12, 13, 1,
-//                24, 25, 1
-//        );
+        printf("opt_6b");
+        multi_time_quilt_rgb(
+                (quilting_opt_6b), file, img_rgb,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("opt_6a");
+        multi_time_quilt_rgb(
+                (quilting_opt_6a), file, img_rgb,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("opt_6");
+        multi_time_quilt_rgb(
+                (quilting_opt_6), file, img_rgb,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("opt_5");
+        multi_time_quilt_rgb(
+                (quilting_opt_5), file, img_rgb,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("opt_4");
+        multi_time_quilt(
+                (quilting_opt_4), file, img,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("opt_3");
+        multi_time_quilt(
+                (quilting_opt_3), file, img,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("opt_2");
+        multi_time_quilt(
+                (quilting_opt_2), file, img,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("opt_1");
+        multi_time_quilt(
+                (quilting_opt), file, img,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
+        printf("baseline");
+        multi_time_quilt(
+                (quilting_baseline), file, img,
+                64, 65, 1,
+                12, 13, 1,
+                32, 33, 1
+        );
 
 
         free_image(img);
