@@ -1,4 +1,4 @@
-revision,block_size,number_of_blocks_in_output_image,overlap_size,number_of_cycles,runtime_ms
+revision,block_size,number_of_blocks_in_output_image,overlap_size,number_of_cycles,runtime_s
 baseline,16,12,4,3403493586,1.890830
 baseline,16,12,6,4602380000,2.556878
 baseline,16,12,8,5638169631,3.132316
