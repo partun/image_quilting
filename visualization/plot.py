@@ -1,7 +1,8 @@
+from typing import NamedTuple
+
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from typing import NamedTuple
 
 from ops_cnt import cnt_all
 
@@ -216,6 +217,18 @@ def main(path, image_name, cpu, include=None):
         data = measurements[measurements["overlap_size"] == measurements["block_size"] * relative_overlap]
         data = data.reset_index()
 
+        if 'Ryzen 9 3900x' in cpu:
+            data['runtime_s'] = data["number_of_cycles"] / (3.6 * 10 ** 9)
+        elif 'i7-8550U' in cpu:
+            data['runtime_s'] = data["number_of_cycles"] / (1.8 * 10 ** 9)
+        elif 'i5-1135G7' in cpu:
+            data['runtime_s'] = data["number_of_cycles"] / (2.4 * 10 ** 9)
+        else:
+            raise ValueError("unknown cpu")
+
+        if len(data) <= 0:
+            continue
+
         plot_sec(data, relative_overlap, image_name, cpu, include)
         plot_speedup(data, relative_overlap, image_name, cpu, include)
         plot_perf(data, relative_overlap, image_name, 192, 192, cpu, include)
@@ -230,6 +243,8 @@ if __name__ == "__main__":
 
     main("timings/measure_red_amd.csv", "red_amd", "Ryzen 9 3900x @ 3.6 Ghz")
     main("timings/measure_blue_amd.csv", "blue_amd", "Ryzen 9 3900x @ 3.6 Ghz")
+
+    main("timings/measure_dandelion_amd.csv", "dandelion_amd", "Ryzen 9 3900x @ 3.6 Ghz")
 
     main(
         "timings/measure_blue_amd.csv", "f0_blue_amd", "Ryzen 9 3900x @ 3.6 Ghz",
