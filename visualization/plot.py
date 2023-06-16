@@ -1,9 +1,7 @@
 from typing import NamedTuple
-
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-
 from ops_cnt import cnt_all
 
 
@@ -55,7 +53,8 @@ def plot_sec(measurements, overlap, image, cpu, include=None):
         revisions_items = revisions.items()
 
     for revi_key, revi in revisions_items:
-        filtered = measurements[measurements["revision"] == revi_key].reset_index()
+        filtered = measurements[measurements["revision"]
+                                == revi_key].reset_index()
         if len(filtered) == 0:
             continue
 
@@ -89,7 +88,7 @@ def plot_sec(measurements, overlap, image, cpu, include=None):
     # Save plot
     plt.tight_layout()
     overlap_str = f"{overlap}".replace(".", "_")
-    plt.savefig(f"visualization/plot_sec_{image}_overlap_{overlap_str}.png")
+    plt.savefig(f"visualization/plot_sec_{image}_overlap_{overlap_str}.pdf")
     plt.close(fig)
 
 
@@ -98,7 +97,8 @@ def plot_speedup(measurements, overlap, image, cpu, include=None):
     fig = plt.figure(figsize=(12, 9))
     fig_ax = fig.gca()
 
-    baseline = measurements[measurements["revision"] == "baseline"].reset_index()
+    baseline = measurements[measurements["revision"]
+                            == "baseline"].reset_index()
 
     if include:
         revisions_items = ((k, revisions[k]) for k in include)
@@ -106,7 +106,8 @@ def plot_speedup(measurements, overlap, image, cpu, include=None):
         revisions_items = revisions.items()
 
     for revi_key, revi in revisions_items:
-        filtered = measurements[measurements["revision"] == revi_key].reset_index()
+        filtered = measurements[measurements["revision"]
+                                == revi_key].reset_index()
         if len(filtered) == 0:
             continue
 
@@ -140,7 +141,8 @@ def plot_speedup(measurements, overlap, image, cpu, include=None):
     # Save plot
     plt.tight_layout()
     overlap_str = f"{overlap}".replace(".", "_")
-    plt.savefig(f"visualization/plot_speedup_{image}_overlap_{overlap_str}.png")
+    plt.savefig(
+        f"visualization/plot_speedup_{image}_overlap_{overlap_str}.pdf")
     plt.close(fig)
 
 
@@ -155,7 +157,8 @@ def plot_perf(measurements, relative_overlap, image, src_width, src_height, cpu,
         revisions_items = revisions.items()
 
     for revi_key, revi in revisions_items:
-        filtered = measurements[measurements["revision"] == revi_key].reset_index()
+        filtered = measurements[measurements["revision"]
+                                == revi_key].reset_index()
         if len(filtered) == 0:
             continue
 
@@ -197,7 +200,7 @@ def plot_perf(measurements, relative_overlap, image, src_width, src_height, cpu,
     # Save plot
     plt.tight_layout()
     overlap_str = f"{relative_overlap}".replace(".", "_")
-    plt.savefig(f"visualization/plot_perf_{image}_overlap_{overlap_str}.png")
+    plt.savefig(f"visualization/plot_perf_{image}_overlap_{overlap_str}.pdf")
     plt.close(fig)
 
 
@@ -205,7 +208,7 @@ def parse_data(data_path: str):
     measurements = pd.read_csv(data_path, sep=',', header=0)
 
     measurements["output_size"] = (measurements['block_size'] - measurements["overlap_size"]) * (
-            measurements["number_of_blocks_in_output_image"] - 1) + measurements['block_size']
+        measurements["number_of_blocks_in_output_image"] - 1) + measurements['block_size']
 
     return measurements
 
@@ -214,7 +217,8 @@ def main(path, image_name, cpu, include=None):
     measurements = parse_data(path)
 
     for relative_overlap in [0.25, 0.375, 0.5]:
-        data = measurements[measurements["overlap_size"] == measurements["block_size"] * relative_overlap]
+        data = measurements[measurements["overlap_size"] ==
+                            measurements["block_size"] * relative_overlap]
         data = data.reset_index()
 
         if 'Ryzen 9 3900x' in cpu:
@@ -229,22 +233,35 @@ def main(path, image_name, cpu, include=None):
         if len(data) <= 0:
             continue
 
+        if "dandelion" in image_name:
+            src_w = 1024
+            src_h = 683
+        elif "red" in image_name or "blue" in image_name:
+            src_w = 192
+            src_h = 192
+        else:
+            raise ValueError('unknown image')
+
         plot_sec(data, relative_overlap, image_name, cpu, include)
         plot_speedup(data, relative_overlap, image_name, cpu, include)
-        plot_perf(data, relative_overlap, image_name, 192, 192, cpu, include)
+        plot_perf(data, relative_overlap, image_name,
+                  src_w, src_h, cpu, include)
 
 
 if __name__ == "__main__":
     main("timings/measure_red_intel.csv", "red_intel", "i5-1135G7 @ 2.4 Ghz")
     main("timings/measure_blue_intel.csv", "blue_intel", "i5-1135G7 @ 2.4 Ghz")
 
-    main("timings/measure_red_intel_kaby.csv", "red_intel_kaby", "i7-8550U @ 1.8 Ghz")
-    main("timings/measure_blue_intel_kaby.csv", "blue_intel_kaby", "i7-8550U @ 1.8 Ghz")
+    main("timings/measure_red_intel_kaby.csv",
+         "red_intel_kaby", "i7-8550U @ 1.8 Ghz")
+    main("timings/measure_blue_intel_kaby.csv",
+         "blue_intel_kaby", "i7-8550U @ 1.8 Ghz")
 
     main("timings/measure_red_amd.csv", "red_amd", "Ryzen 9 3900x @ 3.6 Ghz")
     main("timings/measure_blue_amd.csv", "blue_amd", "Ryzen 9 3900x @ 3.6 Ghz")
 
-    main("timings/measure_dandelion_amd.csv", "dandelion_amd", "Ryzen 9 3900x @ 3.6 Ghz")
+    main("timings/measure_dandelion_amd.csv",
+         "dandelion_amd", "Ryzen 9 3900x @ 3.6 Ghz")
 
     main(
         "timings/measure_blue_amd.csv", "f0_blue_amd", "Ryzen 9 3900x @ 3.6 Ghz",

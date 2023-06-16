@@ -7,7 +7,9 @@ CMakeCache.txt
 Makefile
 
 # Additions from Etienne
-team08
+benchmark_amd
 CMakeFiles
 output/*
 tests/unittests
+cmake-build-*
+__pycache__
