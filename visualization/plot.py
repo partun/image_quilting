@@ -42,9 +42,13 @@ revisions = {
 }
 
 
-def plot_sec(measurements, overlap, image, cpu, include=None):
+FIG_SIZE = (11, 9)
+TEXT_SIZE = 16
+
+
+def plot_sec(measurements, overlap, image, platform, cpu, include=None):
     plt.style.use("seaborn-v0_8-darkgrid")
-    fig = plt.figure(figsize=(12, 9))
+    fig = plt.figure(figsize=FIG_SIZE)
     fig_ax = fig.gca()
 
     if include:
@@ -69,18 +73,19 @@ def plot_sec(measurements, overlap, image, cpu, include=None):
 
     plt.title(f"Quilting Runtime [{cpu}, overlap = {overlap} * block_size]",
               loc="left", fontsize=20, fontweight="bold",
-              x=-0.0255, y=1.06
+              x=-0.031, y=1.06
               )
-    plt.legend(fontsize=14, bbox_to_anchor=(0, -0.1), ncol=2, loc="upper left")
+    plt.legend(fontsize=TEXT_SIZE, bbox_to_anchor=(
+        0, -0.1), ncol=2, loc="upper left")
     fig_ax.grid(True, color="lightgray", linestyle="--", linewidth=1)
     fig_ax.set_yscale('log', base=2)
     # fig_ax.set_xscale('log', base=2)
-    fig_ax.set_xlabel("block size", fontsize=14)
+    fig_ax.set_xlabel("block size", fontsize=TEXT_SIZE)
     fig_ax.set_xticks(filtered["block_size"])
 
     # fig_ax.set_xticks(arange(100, 1600, 100))
-    fig_ax.set_ylabel("[seconds]", loc="top", rotation=0, fontsize=14)
-    fig_ax.yaxis.set_label_coords(0.05, 1.02)
+    fig_ax.set_ylabel("[seconds]", loc="top", rotation=0, fontsize=TEXT_SIZE)
+    fig_ax.yaxis.set_label_coords(0.07, 1.02)
     fig_ax.tick_params(labelsize=14)
     # fig_ax.set_yticks(arange(0.5, 4., 0.5))
     # fig_ax.set_yticks(arange(0, 4.5, 0.5))
@@ -88,13 +93,14 @@ def plot_sec(measurements, overlap, image, cpu, include=None):
     # Save plot
     plt.tight_layout()
     overlap_str = f"{overlap}".replace(".", "_")
-    plt.savefig(f"visualization/plot_sec_{image}_overlap_{overlap_str}.pdf")
+    plt.savefig(
+        f"visualization/plot_sec_{image}_{platform}_overlap_{overlap_str}.pdf")
     plt.close(fig)
 
 
-def plot_speedup(measurements, overlap, image, cpu, include=None):
+def plot_speedup(measurements, overlap, image, platform, cpu, include=None):
     plt.style.use("seaborn-v0_8-darkgrid")
-    fig = plt.figure(figsize=(12, 9))
+    fig = plt.figure(figsize=FIG_SIZE)
     fig_ax = fig.gca()
 
     baseline = measurements[measurements["revision"]
@@ -122,18 +128,19 @@ def plot_speedup(measurements, overlap, image, cpu, include=None):
 
     plt.title(f"Quilting Speedup [{cpu}, overlap = {overlap} * block_size]",
               loc="left", fontsize=20, fontweight="bold",
-              x=-0.0255, y=1.06
+              x=-0.034, y=1.06
               )
-    plt.legend(fontsize=14, bbox_to_anchor=(0, -0.1), ncol=2, loc="upper left")
+    plt.legend(fontsize=TEXT_SIZE, bbox_to_anchor=(
+        0, -0.1), ncol=2, loc="upper left")
     fig_ax.grid(True, color="lightgray", linestyle="--", linewidth=1)
     # fig_ax.set_yscale('log', base=2)
     # fig_ax.set_xscale('log', base=2)
-    fig_ax.set_xlabel("block size", fontsize=14)
+    fig_ax.set_xlabel("block size", fontsize=TEXT_SIZE)
     fig_ax.set_xticks(filtered["block_size"])
 
     # fig_ax.set_xticks(arange(100, 1600, 100))
-    fig_ax.set_ylabel("[speedup]", loc="top", rotation=0, fontsize=14)
-    fig_ax.yaxis.set_label_coords(0.05, 1.02)
+    fig_ax.set_ylabel("[speedup]", loc="top", rotation=0, fontsize=TEXT_SIZE)
+    fig_ax.yaxis.set_label_coords(0.07, 1.02)
     fig_ax.tick_params(labelsize=14)
     # fig_ax.set_yticks(arange(0.5, 4., 0.5))
     # fig_ax.set_yticks(arange(0, 4.5, 0.5))
@@ -142,13 +149,13 @@ def plot_speedup(measurements, overlap, image, cpu, include=None):
     plt.tight_layout()
     overlap_str = f"{overlap}".replace(".", "_")
     plt.savefig(
-        f"visualization/plot_speedup_{image}_overlap_{overlap_str}.pdf")
+        f"visualization/plot_speedup_{image}_{platform}_overlap_{overlap_str}.pdf")
     plt.close(fig)
 
 
-def plot_perf(measurements, relative_overlap, image, src_width, src_height, cpu, include=None):
+def plot_perf(measurements, relative_overlap, image, platform, src_width, src_height, cpu, include=None):
     plt.style.use("seaborn-v0_8-darkgrid")
-    fig = plt.figure(figsize=(12, 9))
+    fig = plt.figure(figsize=FIG_SIZE)
     fig_ax = fig.gca()
 
     if include:
@@ -181,18 +188,19 @@ def plot_perf(measurements, relative_overlap, image, src_width, src_height, cpu,
 
     plt.title(f"Quilting Performance [{cpu}, overlap = {relative_overlap} * block_size]",
               loc="left", fontsize=20, fontweight="bold",
-              x=-0.0255, y=1.06
+              x=-0.034, y=1.06
               )
-    plt.legend(fontsize=14, bbox_to_anchor=(0, -0.1), ncol=2, loc="upper left")
+    plt.legend(fontsize=TEXT_SIZE, bbox_to_anchor=(
+        0, -0.1), ncol=2, loc="upper left")
     fig_ax.grid(True, color="lightgray", linestyle="--", linewidth=1)
     # fig_ax.set_yscale('log', base=2)
     # fig_ax.set_xscale('log', base=2)
-    fig_ax.set_xlabel("block size", fontsize=14)
+    fig_ax.set_xlabel("block size", fontsize=TEXT_SIZE)
     fig_ax.set_xticks(filtered["block_size"])
 
     # fig_ax.set_xticks(arange(100, 1600, 100))
-    fig_ax.set_ylabel("[ops/cycle]", loc="top", rotation=0, fontsize=14)
-    fig_ax.yaxis.set_label_coords(0.057, 1.02)
+    fig_ax.set_ylabel("[ops/cycle]", loc="top", rotation=0, fontsize=TEXT_SIZE)
+    fig_ax.yaxis.set_label_coords(0.08, 1.02)
     fig_ax.tick_params(labelsize=14)
     # fig_ax.set_yticks(arange(0.5, 4., 0.5))
     # fig_ax.set_yticks(arange(0, 4.5, 0.5))
@@ -200,7 +208,8 @@ def plot_perf(measurements, relative_overlap, image, src_width, src_height, cpu,
     # Save plot
     plt.tight_layout()
     overlap_str = f"{relative_overlap}".replace(".", "_")
-    plt.savefig(f"visualization/plot_perf_{image}_overlap_{overlap_str}.pdf")
+    plt.savefig(
+        f"visualization/plot_perf_{image}_{platform}_overlap_{overlap_str}.pdf")
     plt.close(fig)
 
 
@@ -213,7 +222,7 @@ def parse_data(data_path: str):
     return measurements
 
 
-def main(path, image_name, cpu, include=None):
+def main(path, image_name, platform, cpu, include=None):
     measurements = parse_data(path)
 
     for relative_overlap in [0.25, 0.375, 0.5]:
@@ -236,45 +245,50 @@ def main(path, image_name, cpu, include=None):
         if "dandelion" in image_name:
             src_w = 1024
             src_h = 683
-        elif "red" in image_name or "blue" in image_name:
+        elif "radishes" in image_name or "blueflowers" in image_name:
             src_w = 192
             src_h = 192
         else:
             raise ValueError('unknown image')
 
-        plot_sec(data, relative_overlap, image_name, cpu, include)
-        plot_speedup(data, relative_overlap, image_name, cpu, include)
-        plot_perf(data, relative_overlap, image_name,
+        plot_sec(data, relative_overlap, image_name, platform, cpu, include)
+        plot_speedup(data, relative_overlap,
+                     image_name, platform, cpu, include)
+        plot_perf(data, relative_overlap, image_name, platform,
                   src_w, src_h, cpu, include)
 
 
 if __name__ == "__main__":
-    main("timings/measure_red_intel.csv", "red_intel", "i5-1135G7 @ 2.4 Ghz")
-    main("timings/measure_blue_intel.csv", "blue_intel", "i5-1135G7 @ 2.4 Ghz")
+    main("timings/measure_red_intel.csv",
+         "radishes", "intel", "i5-1135G7 @ 2.4 GHz")
+    main("timings/measure_blue_intel.csv",
+         "blueflowers", "intel", "i5-1135G7 @ 2.4 GHz")
 
     main("timings/measure_red_intel_kaby.csv",
-         "red_intel_kaby", "i7-8550U @ 1.8 Ghz")
+         "radishes", "intel_kaby", "i7-8550U @ 1.8 GHz")
     main("timings/measure_blue_intel_kaby.csv",
-         "blue_intel_kaby", "i7-8550U @ 1.8 Ghz")
+         "blueflowers", "intel_kaby", "i7-8550U @ 1.8 GHz")
 
-    main("timings/measure_red_amd.csv", "red_amd", "Ryzen 9 3900x @ 3.6 Ghz")
-    main("timings/measure_blue_amd.csv", "blue_amd", "Ryzen 9 3900x @ 3.6 Ghz")
+    main("timings/measure_red_amd.csv", "radishes",
+         "amd", "Ryzen 9 3900x @ 3.6 GHz")
+    main("timings/measure_blue_amd.csv", "blueflowers",
+         "amd", "Ryzen 9 3900x @ 3.6 GHz")
 
     main("timings/measure_dandelion_amd.csv",
-         "dandelion_amd", "Ryzen 9 3900x @ 3.6 Ghz")
+         "dandelion", "amd", "Ryzen 9 3900x @ 3.6 GHz")
 
     main(
-        "timings/measure_blue_amd.csv", "f0_blue_amd", "Ryzen 9 3900x @ 3.6 Ghz",
+        "timings/measure_blue_amd.csv", "blueflowers", "amd_f0", "Ryzen 9 3900x @ 3.6 GHz",
         include=["baseline", "opt_6b", "opt_6c", "opt_10"]
     )
-    main("timings/measure_red_amd.csv", "f0_red_amd", "Ryzen 9 3900x @ 3.6 Ghz",
+    main("timings/measure_red_amd.csv", "radishes", "amd_f0", "Ryzen 9 3900x @ 3.6 GHz",
          include=["baseline", "opt_6b", "opt_6c", "opt_10"]
          )
 
     main(
-        "timings/measure_blue_intel.csv", "f0_blue_intel", "i5-1135G7 @ 2.4 Ghz",
+        "timings/measure_blue_intel.csv", "blueflowers", "intel_f0", "i5-1135G7 @ 2.4 GHz",
         include=["baseline", "opt_6b", "opt_6c", "opt_10"]
     )
-    main("timings/measure_red_intel.csv", "f0_red_intel", "i5-1135G7 @ 2.4 Ghz",
+    main("timings/measure_red_intel.csv", "radishes", "intel_f0", "i5-1135G7 @ 2.4 GHz",
          include=["baseline", "opt_6b", "opt_6c", "opt_10"]
          )
